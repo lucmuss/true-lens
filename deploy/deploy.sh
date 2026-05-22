@@ -54,7 +54,7 @@ docker compose exec -T web env DATABASE_URL="$RCH_DATABASE_URL" python manage.py
 APP_PORT="${RCH_APP_HOST_PORT:-18087}"
 for i in {1..50}; do
   if curl -fsS "http://127.0.0.1:${APP_PORT}/healthz/" >/dev/null 2>&1; then
-    echo "recruiter-candidate-hub healthy on port ${APP_PORT}"
+    echo "true_lens healthy on port ${APP_PORT}"
     exit 0
   fi
   sleep 2

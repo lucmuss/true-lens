@@ -1,5 +1,7 @@
 # Apps-Stack Deployment
 
+Project: TrueLens (`https://github.com/lucmuss/true_lens`)
+
 Deploy target: shared postgres in `/srv/docker/apps-stack`.
 
 ## Required apps-stack env keys

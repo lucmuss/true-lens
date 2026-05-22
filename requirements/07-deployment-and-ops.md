@@ -1,12 +1,12 @@
 # Deployment and Ops
 
 ## Runtime placement
-- Repository: `/srv/projects/web/recruiter-candidate-hub`
+- Repository: `/srv/projects/web/recruiter-candidate-hub` (TrueLens)
 - Deployment target stack: `/srv/docker/apps-stack`
 
 ## Baseline services
-- `recruiter-candidate-hub-web`
-- `recruiter-candidate-hub-nginx`
+- `true_lens-web`
+- `true_lens-nginx`
 - shared postgres (apps-stack)
 
 ## Required checks

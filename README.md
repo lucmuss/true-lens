@@ -1,6 +1,8 @@
-# Recruiter Candidate Hub
+# TrueLens
 
 Sichere, schnelle Recruiter-Web-App für mehrstufige Kandidaten-Suche, maskierte Profilanzeige, Kategorie-Voting, Credit-System und replikationsfähige Architektur.
+
+GitHub: `https://github.com/lucmuss/true_lens`
 
 ## Stack
 
