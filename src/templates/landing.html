@@ -21,8 +21,8 @@
     </section>
 
     <section class="panel ow-auth-card" id="captcha-panel" x-data="captchaFlow()" x-init="init()">
-      <h2 class="ow-card-title">Sicherheitspruefung</h2>
-      <p class="ow-card-sub">Erst nach erfolgreicher Captcha-Pruefung wird die Suche freigeschaltet.</p>
+      <h2 class="ow-card-title">Sicherheitsprüfung</h2>
+      <p class="ow-card-sub">Löse das Captcha, um die Profilsuche freizuschalten.</p>
 
       <template x-if="captchaImage">
         <img :src="captchaImage" alt="Captcha" class="ow-captcha-image mt-4">
@@ -30,14 +30,14 @@
 
       <label class="mt-4 block text-sm font-medium">Captcha Code</label>
       <input x-model="code" type="text" class="field mt-1" placeholder="Code eingeben">
-      <button @click="verify()" class="btn-primary mt-4 w-full" :disabled="!code.trim()">Pruefung starten</button>
+      <button @click="verify()" class="btn-primary mt-4 w-full" :disabled="!code.trim()">Prüfung starten</button>
       <p class="ow-inline-info mt-2" x-text="message"></p>
 
       <template x-if="verified">
         <div class="mt-6 border border-emerald-200 bg-emerald-50 rounded-xl p-4" x-cloak>
           <h3 class="font-semibold text-emerald-900">Captcha erfolgreich</h3>
           <p class="text-sm text-emerald-800 mt-1">Die schnelle Mehrschritt-Suche ist jetzt freigeschaltet.</p>
-          <a href="{% url 'dashboard' %}" class="btn-secondary mt-4 inline-flex">Zum Dashboard</a>
+          <a href="{% url 'dashboard' %}" class="btn-primary mt-4 inline-flex w-full justify-center">Zur Suche &rarr;</a>
         </div>
       </template>
     </section>
@@ -71,7 +71,7 @@
             localStorage.setItem('tl_js_gate_token', data.js_gate_token);
           }
         } else {
-          this.message = data.error || 'Pruefung fehlgeschlagen.';
+          this.message = data.error || 'Prüfung fehlgeschlagen.';
         }
       },
     };

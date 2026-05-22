@@ -62,7 +62,7 @@
         <div class="tl-field-with-icon">
           <span class="tl-field-icon">⌄</span>
           <select x-model="gender" class="field tl-field-pad" :disabled="!first_name">
-            <option value="">Bitte waehlen</option>
+            <option value="">Bitte wählen</option>
             <option value="female">Female</option>
             <option value="male">Male</option>
             <option value="diverse">Diverse</option>
@@ -123,7 +123,7 @@
                 <div class="tl-input-group">
                   <label class="tl-input-label">Haarfarbe</label>
                   <select x-model="newProfile.hair_color" class="field">
-                    <option value="">Bitte waehlen</option>
+                    <option value="">Bitte wählen</option>
                     <template x-for="hc in hairColors" :key="hc.value">
                       <option :value="hc.value" x-text="hc.label"></option>
                     </template>
@@ -198,7 +198,7 @@
 
         <template x-if="currentField === 'hair_color'">
           <select x-model="stepValue" class="field">
-            <option value="">Bitte waehlen</option>
+            <option value="">Bitte wählen</option>
             <template x-for="hc in hairColors" :key="hc.value">
               <option :value="hc.value" x-text="hc.label"></option>
             </template>
