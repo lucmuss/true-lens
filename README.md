@@ -55,13 +55,20 @@ uv run python manage.py seed_attribute_definitions
 uv run python manage.py seed_dev_data
 ```
 
-Die `seed_dev_data`-Daten legen folgende Test-Accounts an:
+`seed_dev_data` erzeugt Recruiter-/Admin-Accounts nur, wenn sie noch nicht existieren.
+Passwörter werden standardmäßig zufällig erzeugt und einmalig in der Command-Ausgabe angezeigt.
 
-| E-Mail | Passwort | Rolle |
-| --- | --- | --- |
-| `recruiter1@example.com` | `Test1234!secure` | Recruiter |
-| `recruiter2@example.com` | `Test1234!secure` | Recruiter |
-| `admin@example.com` | `Test1234!secure` | Admin / Staff |
+Für QA kann optional ein gemeinsames Passwort gesetzt werden:
+
+```bash
+uv run python manage.py seed_dev_data --password "MyS3cure!Password42"
+```
+
+Für produktionsnahe Umgebungen (`DEBUG=False`) ist ein explizites `--force` notwendig:
+
+```bash
+uv run python manage.py seed_dev_data --force
+```
 
 ### 5. Dev-Server starten
 

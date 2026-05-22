@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}Registrierung · {{ PROJECT_NAME }}{% endblock %}
+{% block body %}
+<div class="ow-auth-wrap">
+  <div class="ow-auth-grid">
+    <section class="panel ow-hero-card">
+      <div class="ow-hero-mark">TL</div>
+      <h1 class="ow-hero-title">Recruiter registrieren</h1>
+      <p class="ow-hero-sub">Erstelle dein Konto, bestaetige deine E-Mail und schalte sichere Profilsuchen frei.</p>
+    </section>
+
+    <section class="panel ow-auth-card">
+      <h2 class="ow-card-title">Neues Konto</h2>
+      <p class="ow-card-sub mt-2">Nach der Registrierung erhaeltst du einen Sicherheitscode per E-Mail.</p>
+
+      <form method="post" action="{% url 'account_signup' %}" class="mt-4 space-y-3">
+        {% csrf_token %}
+        {% if redirect_field_value %}
+          <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+        {% endif %}
+
+        {% if form.non_field_errors %}
+          <div class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        {% for field in form %}
+          {% if field.is_hidden %}
+            {{ field }}
+          {% else %}
+            <div>
+              <label for="{{ field.id_for_label }}" class="block text-sm font-medium">{{ field.label }}</label>
+              {{ field }}
+              {% if field.errors %}
+                <p class="mt-1 text-sm text-red-700">{{ field.errors|striptags }}</p>
+              {% endif %}
+            </div>
+          {% endif %}
+        {% endfor %}
+
+        <button type="submit" class="btn-primary w-full">Konto erstellen</button>
+      </form>
+
+      <div class="mt-4 text-sm text-slate-600">
+        Bereits registriert?
+        <a href="{% url 'account_login' %}" class="underline">Jetzt anmelden</a>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}

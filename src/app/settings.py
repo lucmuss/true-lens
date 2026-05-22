@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import logging
 import dj_database_url
 
 from .env import BASE_DIR, env_bool, env_int, env_list, env_str
@@ -126,6 +125,8 @@ ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = env_str("ACCOUNT_DEFAULT_HTTP_PROTOCOL", "https")
 ACCOUNT_USER_MODEL_EMAIL_FIELD = "email"
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_ADAPTER = "apps.accounts.adapters.RecruiterAccountAdapter"
 ACCOUNT_EMAIL_VERIFICATION_BY_CODE_ENABLED = True
 ACCOUNT_EMAIL_VERIFICATION_BY_CODE_MAX_ATTEMPTS = 5

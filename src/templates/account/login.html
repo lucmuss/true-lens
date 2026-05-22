@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}Anmeldung · {{ PROJECT_NAME }}{% endblock %}
+{% block body %}
+<div class="ow-auth-wrap">
+  <div class="ow-auth-grid">
+    <section class="panel ow-hero-card">
+      <div class="ow-hero-mark">TL</div>
+      <h1 class="ow-hero-title">Willkommen zurueck</h1>
+      <p class="ow-hero-sub">Melde dich als registrierter Recruiter an, um Profilsuchen, Votes und Credits zu verwalten.</p>
+    </section>
+
+    <section class="panel ow-auth-card">
+      <h2 class="ow-card-title">Recruiter Login</h2>
+      <p class="ow-card-sub mt-2">Nur verifizierte Recruiter koennen Daten bewerten und Credits verwalten.</p>
+
+      <form method="post" action="{% url 'account_login' %}" class="mt-4 space-y-3">
+        {% csrf_token %}
+        {% if redirect_field_value %}
+          <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+        {% endif %}
+
+        {% if form.non_field_errors %}
+          <div class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        {% for field in form %}
+          {% if field.is_hidden %}
+            {{ field }}
+          {% else %}
+            <div>
+              <label for="{{ field.id_for_label }}" class="block text-sm font-medium">{{ field.label }}</label>
+              {{ field }}
+              {% if field.errors %}
+                <p class="mt-1 text-sm text-red-700">{{ field.errors|striptags }}</p>
+              {% endif %}
+            </div>
+          {% endif %}
+        {% endfor %}
+
+        <button type="submit" class="btn-primary w-full">Anmelden</button>
+      </form>
+
+      <div class="mt-4 text-sm text-slate-600">
+        <a href="{% url 'account_reset_password' %}" class="underline">Passwort vergessen?</a>
+      </div>
+      <div class="mt-2 text-sm text-slate-600">
+        Noch kein Konto?
+        <a href="{% url 'account_signup' %}" class="underline">Jetzt registrieren</a>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}

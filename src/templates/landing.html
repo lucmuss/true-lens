@@ -30,14 +30,16 @@
 
       <label class="mt-4 block text-sm font-medium">Captcha Code</label>
       <input x-model="code" type="text" class="field mt-1" placeholder="Code eingeben">
-      <button @click="verify()" class="btn-primary mt-4 w-full">Pruefung starten</button>
+      <button @click="verify()" class="btn-primary mt-4 w-full" :disabled="!code.trim()">Pruefung starten</button>
       <p class="ow-inline-info mt-2" x-text="message"></p>
 
-      <div class="mt-6 border-t pt-6" x-show="verified" x-cloak>
-        <h3 class="font-semibold">Suche starten</h3>
-        <p class="text-sm text-slate-600 mt-1">Die schnelle Mehrschritt-Suche ist jetzt aktiv.</p>
-        <a href="{% url 'dashboard' %}" class="btn-secondary mt-4 inline-flex">Zum Dashboard</a>
-      </div>
+      <template x-if="verified">
+        <div class="mt-6 border border-emerald-200 bg-emerald-50 rounded-xl p-4" x-cloak>
+          <h3 class="font-semibold text-emerald-900">Captcha erfolgreich</h3>
+          <p class="text-sm text-emerald-800 mt-1">Die schnelle Mehrschritt-Suche ist jetzt freigeschaltet.</p>
+          <a href="{% url 'dashboard' %}" class="btn-secondary mt-4 inline-flex">Zum Dashboard</a>
+        </div>
+      </template>
     </section>
   </div>
 </div>

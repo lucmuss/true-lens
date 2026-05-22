@@ -671,6 +671,37 @@ body {
   padding: 24px;
 }
 
+.ow-auth-card input[type="text"],
+.ow-auth-card input[type="email"],
+.ow-auth-card input[type="password"],
+.ow-auth-card input[type="number"],
+.ow-auth-card select,
+.ow-auth-card textarea {
+  width: 100%;
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  color: var(--text-1);
+  background: var(--input-bg);
+  font-size: 0.94rem;
+  margin-top: 4px;
+}
+
+.ow-auth-card input[type="text"]:focus,
+.ow-auth-card input[type="email"]:focus,
+.ow-auth-card input[type="password"]:focus,
+.ow-auth-card input[type="number"]:focus,
+.ow-auth-card select:focus,
+.ow-auth-card textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+.ow-auth-card input[type="checkbox"] {
+  accent-color: var(--accent);
+}
+
 .ow-captcha-image {
   border: 1px solid var(--card-border);
   border-radius: var(--radius-md);
