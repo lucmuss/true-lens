@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 {% block title %}Sicherheitsverifikation{% endblock %}
 {% block body %}
-<div class="max-w-xl mx-auto p-6">
+<div class="ow-page-wrap ow-page-narrow">
   <div class="panel p-6">
     <h1 class="text-xl font-semibold">Sicherheitsverifikation</h1>
-    <p class="text-sm text-slate-600 mt-2">Bitte loese das Captcha und gib den 6-stelligen Code aus deiner E-Mail ein.</p>
+    <p class="ow-card-sub mt-2">Bitte loese das Captcha und gib den 6-stelligen Code aus deiner E-Mail ein.</p>
 
     {% if messages %}
     <ul class="mt-4 space-y-2">
       {% for msg in messages %}
-      <li class="text-sm text-slate-700">{{ msg }}</li>
+      <li class="ow-inline-info">{{ msg }}</li>
       {% endfor %}
     </ul>
     {% endif %}
@@ -19,7 +19,7 @@
       <input type="hidden" name="captcha_id" value="{{ captcha_data.captcha_id }}">
       <div>
         <label class="block text-sm font-medium">Captcha</label>
-        <img src="{{ captcha_data.image_b64 }}" alt="Captcha" class="mt-2 rounded border border-slate-300">
+        <img src="{{ captcha_data.image_b64 }}" alt="Captcha" class="ow-captcha-image mt-2">
       </div>
       <div>
         <label class="block text-sm font-medium">Captcha Antwort</label>

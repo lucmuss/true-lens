@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 {% block title %}Profil loeschen{% endblock %}
 {% block body %}
-<div class="max-w-xl mx-auto p-6">
+<div class="ow-page-wrap ow-page-narrow">
   <div class="panel p-6">
     <h1 class="text-xl font-semibold text-red-700">Profil loeschen</h1>
-    <p class="text-sm text-slate-600 mt-2">Deine E-Mail und Profildaten werden entfernt. Bereits abgegebene Votes bleiben anonym im System.</p>
+    <p class="ow-card-sub mt-2">Deine E-Mail und Profildaten werden entfernt. Bereits abgegebene Votes bleiben anonym im System.</p>
     <form method="post" class="mt-6">
       {% csrf_token %}
-      <button class="btn-primary bg-red-700 hover:bg-red-800">Endgueltig loeschen</button>
+      <button class="btn-danger">Endgueltig loeschen</button>
     </form>
   </div>
 </div>

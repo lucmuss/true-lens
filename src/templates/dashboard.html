@@ -1,56 +1,92 @@
 {% extends "base.html" %}
 {% block title %}Dashboard · {{ PROJECT_NAME }}{% endblock %}
 {% block body %}
-<div class="max-w-7xl mx-auto p-4 md:p-6 space-y-4 md:space-y-6">
-  <header class="panel rch-topbar p-4 md:p-5">
-    <div class="rch-user-meta">
-      <div class="rch-avatar" aria-hidden="true">
-        <svg viewBox="0 0 24 24" class="rch-avatar-icon">
-          <circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.8"></circle>
-          <path d="M4.5 19.5c1.9-3.4 5-5.1 7.5-5.1s5.6 1.7 7.5 5.1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
-        </svg>
-      </div>
+<div class="ow-shell">
+  <aside class="ow-sidebar">
+    <div class="ow-sidebar-logo">
+      <div class="ow-sidebar-logo-icon">RCH</div>
       <div>
-        <p class="rch-eyebrow">Recruiter Workspace</p>
-        <h1 class="text-xl md:text-2xl font-semibold">Dashboard</h1>
+        <div class="ow-sidebar-logo-text">Recruiter Hub</div>
+        <div class="ow-sidebar-logo-sub">Secure Lookup</div>
       </div>
     </div>
-    <div class="rch-credit-chip">
-      <span class="rch-credit-label">Credits</span>
-      <span class="rch-credit-value">{{ request.user.credits }}</span>
+
+    <nav class="ow-sidebar-nav">
+      <div class="ow-sidebar-section active">Workspace</div>
+      <a href="{% url 'dashboard' %}" class="ow-nav-item active">Search</a>
+      <a href="#vote-history" class="ow-nav-item">Votes</a>
+      <a href="#quick-billing" class="ow-nav-item">Billing</a>
+      <a href="{% url 'recruiter_settings' %}" class="ow-nav-item">Settings</a>
+      <div class="ow-nav-settings-sep"></div>
+      <a href="{% url 'account_logout' %}" class="ow-nav-item">Logout</a>
+    </nav>
+
+    <div class="ow-sidebar-user">
+      <div class="ow-user-avatar">{{ user.email|slice:":1"|upper }}</div>
+      <div class="ow-user-name">{{ user.email }}</div>
     </div>
-  </header>
+  </aside>
 
-  <div class="rch-layout">
-    <aside class="panel rch-sidebar p-3 md:p-4">
-      <nav class="rch-nav">
-        <a href="{% url 'recruiter_settings' %}" class="rch-nav-link">Settings</a>
-        <a href="#billing" class="rch-nav-link">Billing</a>
-        <a href="#votes" class="rch-nav-link">Votes</a>
-      </nav>
-      <div class="rch-side-note">
-        <p class="rch-side-note-title">Ablauf</p>
-        <p class="text-sm text-slate-600">Schritt 1: Land, Provinz, Vorname, Geschlecht</p>
-        <p class="text-sm text-slate-600">Schritt 2: passenden Verifizierungsfall waehlen</p>
+  <main class="ow-main">
+    <header class="ow-header">
+      <div>
+        <div class="ow-header-title">Kandidatensuche</div>
+        <div class="ow-header-sub">Schnell, mehrstufig, verifiziert</div>
       </div>
-    </aside>
-
-    <main class="panel p-4 md:p-6">
-      <div id="search-shell">
-        {% include "partials/search_step_1.html" %}
+      <div class="ow-header-actions">
+        <a href="{% url 'recruiter_settings' %}" class="btn-secondary">Settings</a>
+        <div class="ow-credit-pill" aria-label="Credits">{{ request.user.credits }} Credits</div>
       </div>
-    </main>
-  </div>
+    </header>
 
-  <div id="votes" class="panel p-4 md:p-6">
-    <h2 class="text-lg font-semibold">Letzte Bewertungen</h2>
-    <ul class="mt-4 space-y-2 text-sm text-slate-700">
-      {% for vote in recent_votes %}
-      <li>{{ vote.voted_on }} · {{ vote.candidate.first_name }} {{ vote.candidate.masked_last_name }} · {{ vote.attribute.label }}</li>
-      {% empty %}
-      <li>Noch keine Votes.</li>
-      {% endfor %}
-    </ul>
-  </div>
+    <div class="ow-content">
+      <div class="ow-search-layout">
+        <section class="panel p-5 md:p-6">
+          <div id="search-shell">
+            {% include "partials/search_step_1.html" %}
+          </div>
+        </section>
+
+        <aside class="ow-side-rail">
+          <section class="ow-card ow-compact-card">
+            <h2 class="ow-card-title">Ablauf</h2>
+            <ol class="ow-steps-list">
+              <li>Land und Provinz angeben</li>
+              <li>Vorname und Geschlecht bestaetigen</li>
+              <li>Passenden Verifizierungsfall waehlen</li>
+              <li>Profil sehen und optional bewerten</li>
+            </ol>
+          </section>
+
+          <section id="vote-history" class="ow-card ow-compact-card">
+            <h2 class="ow-card-title">Letzte Votes</h2>
+            <ul class="ow-activity-list">
+              {% for vote in recent_votes %}
+              <li>
+                <span>{{ vote.voted_on }}</span>
+                <span>{{ vote.candidate.first_name }} {{ vote.candidate.masked_last_name }}</span>
+                <span>{{ vote.attribute.label }}</span>
+              </li>
+              {% empty %}
+              <li class="muted">Noch keine Votes.</li>
+              {% endfor %}
+            </ul>
+          </section>
+
+          <section id="quick-billing" class="ow-card ow-compact-card" x-data="creditBuy()">
+            <h2 class="ow-card-title">Credits aufladen</h2>
+            <p class="ow-card-sub">1 Credit = 1 EUR</p>
+            <div class="ow-stepper mt-3">
+              <button class="btn-secondary" @click="dec" aria-label="minus">-</button>
+              <span class="ow-stepper-value" x-text="qty"></span>
+              <button class="btn-secondary" @click="inc" aria-label="plus">+</button>
+            </div>
+            <button class="btn-primary mt-3 w-full" @click="buy">Jetzt kaufen</button>
+            <p class="text-xs text-slate-500 mt-2" x-text="msg"></p>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
 </div>
 {% endblock %}

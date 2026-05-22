@@ -6,10 +6,11 @@ Generated on 2026-05-22 using Playwright (headless Chromium) against local `app.
 - `00-landing-page.png`
 - `01-login.png`
 - `02-dashboard.png`
-- `03-profile.png`
-- `99-mobile-view.png`
+- `03-settings.png`
+- `04-profile.png`
+- `99-mobile-dashboard.png`
 
 ## Notes
-- Desktop captures: 1512x982 viewport.
+- Desktop captures: 1440x1024 viewport.
 - Mobile capture: 390x844 viewport.
-- Login/dashboard screenshots use verified demo user `demo@rch.local`.
+- Login/dashboard screenshots use verified demo user `ui-review@example.com`.

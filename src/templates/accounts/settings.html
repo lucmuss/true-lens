@@ -1,19 +1,24 @@
 {% extends "base.html" %}
 {% block title %}Recruiter Einstellungen{% endblock %}
 {% block body %}
-<div class="max-w-3xl mx-auto p-6">
+<div class="ow-page-wrap">
+  <div class="ow-page-header">
+    <a href="{% url 'dashboard' %}" class="btn-secondary">Zurueck zum Dashboard</a>
+  </div>
   <div class="panel p-6">
     <h1 class="text-xl font-semibold">Benachrichtigungseinstellungen</h1>
-    <form method="post" class="mt-6 space-y-4">
+    <p class="ow-card-sub mt-1">Steuere, wann dich das System per E-Mail informiert.</p>
+
+    <form method="post" class="mt-6 space-y-3">
       {% csrf_token %}
-      <label class="flex items-center gap-2"><input type="checkbox" name="notify_on_vote_overlap" {% if user.notify_on_vote_overlap %}checked{% endif %}> Bei gleichen Kandidatenbewertungen benachrichtigen</label>
-      <label class="flex items-center gap-2"><input type="checkbox" name="notify_on_contact_requests" {% if user.notify_on_contact_requests %}checked{% endif %}> Bei Kontaktanfragen benachrichtigen</label>
-      <label class="flex items-center gap-2"><input type="checkbox" name="notify_on_security" {% if user.notify_on_security %}checked{% endif %}> Sicherheitsmails bei Login senden</label>
+      <label class="ow-check-row"><input type="checkbox" name="notify_on_vote_overlap" {% if user.notify_on_vote_overlap %}checked{% endif %}> Bei gleichen Kandidatenbewertungen benachrichtigen</label>
+      <label class="ow-check-row"><input type="checkbox" name="notify_on_contact_requests" {% if user.notify_on_contact_requests %}checked{% endif %}> Bei Kontaktanfragen benachrichtigen</label>
+      <label class="ow-check-row"><input type="checkbox" name="notify_on_security" {% if user.notify_on_security %}checked{% endif %}> Sicherheitsmails bei Login senden</label>
       <button class="btn-primary">Speichern</button>
     </form>
 
     <div class="mt-8 border-t pt-6">
-      <a href="{% url 'recruiter_delete' %}" class="text-red-700 font-semibold">Recruiter Profil loeschen</a>
+      <a href="{% url 'recruiter_delete' %}" class="ow-danger-link">Recruiter Profil loeschen</a>
     </div>
   </div>
 </div>

@@ -1,14 +1,18 @@
 {% extends "base.html" %}
 {% block title %}Profil · {{ candidate.first_name }}{% endblock %}
 {% block body %}
-<div class="max-w-4xl mx-auto p-6">
+<div class="ow-page-wrap">
+  <div class="ow-page-header">
+    <a href="{% url 'dashboard' %}" class="btn-secondary">Zurueck</a>
+  </div>
   <div class="panel p-6">
     <h1 class="text-2xl font-semibold">{{ candidate.first_name }} {{ candidate.masked_last_name }}</h1>
     <p class="text-slate-600 mt-2">{{ candidate.gender }} · {{ candidate.current_age }} Jahre · Haarfarbe: {{ candidate.hair_color }}</p>
     <p class="text-slate-600 mt-1">E-Mail: {{ candidate.masked_email }} · Telefon: {{ candidate.masked_phone }}</p>
     <p class="text-sm text-slate-500 mt-3">Aufrufe: {{ candidate.profile_views_count }} · Bewerter: {{ candidate.distinct_recruiter_count }}</p>
 
-    <div class="grid md:grid-cols-2 gap-3 mt-6">
+    <h2 class="ow-card-title mt-6">Attribut-Votes</h2>
+    <div class="grid md:grid-cols-2 gap-3 mt-3">
       {% for item in grouped_votes %}
       <div class="vote-tile {% if item.count >= 5 %}vote-strong{% elif item.count > 2 %}vote-mid{% endif %}">
         <div class="flex items-center justify-between">
