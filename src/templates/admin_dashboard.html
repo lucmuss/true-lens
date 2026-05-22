@@ -17,7 +17,10 @@
       <div class="ow-sidebar-section mt-4">Recruiter</div>
       <a href="{% url 'dashboard' %}" class="ow-nav-item">Zum Dashboard</a>
       <div class="ow-nav-settings-sep"></div>
-      <a href="{% url 'account_logout' %}" class="ow-nav-item">Logout</a>
+      <form method="post" action="{% url 'account_logout' %}" style="margin:0">
+        {% csrf_token %}
+        <button type="submit" class="ow-nav-item">Logout</button>
+      </form>
     </nav>
     <div class="ow-sidebar-user">
       <div class="ow-user-avatar">{{ user.email|slice:":1"|upper }}</div>

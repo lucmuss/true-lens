@@ -1,5 +1,4 @@
-from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.paginator import Paginator
 from django.db import models as db_models
 from django.db.models import Count, Sum
@@ -14,7 +13,7 @@ from apps.replication.models import NodeInstance
 from apps.security.models import IPBan
 
 
-@staff_member_required
+@user_passes_test(lambda u: u.is_active and u.is_staff, login_url="account_login")
 def admin_dashboard(request):
     from django.contrib.auth import get_user_model
 

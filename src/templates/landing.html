@@ -1,48 +1,248 @@
 {% extends "base.html" %}
-{% block title %}Secure Lookup · {{ PROJECT_NAME }}{% endblock %}
+{% block title %}TrueLens · Clarity through verification{% endblock %}
 {% block body %}
-<div class="ow-auth-wrap">
-  <div class="ow-auth-grid">
-    <section class="panel ow-hero-card">
-      <div class="ow-hero-mark"><svg viewBox="0 0 20 20" width="26" height="26" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M10 2.5L7.5 7.5h5L10 2.5z" fill="rgba(255,255,255,0.62)"/><path d="M10 2.5L7.5 7.5h5L10 2.5z" fill="rgba(255,255,255,0.52)" transform="rotate(60 10 10)"/><path d="M10 2.5L7.5 7.5h5L10 2.5z" fill="rgba(255,255,255,0.46)" transform="rotate(120 10 10)"/><path d="M10 2.5L7.5 7.5h5L10 2.5z" fill="rgba(255,255,255,0.38)" transform="rotate(180 10 10)"/><path d="M10 2.5L7.5 7.5h5L10 2.5z" fill="rgba(255,255,255,0.38)" transform="rotate(240 10 10)"/><path d="M10 2.5L7.5 7.5h5L10 2.5z" fill="rgba(255,255,255,0.38)" transform="rotate(300 10 10)"/><path d="M7 10.5l2 2 4-4.5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <h1 class="ow-hero-title">TrueLens</h1>
-      <p class="ow-hero-sub">Schnelle, sichere Profilsuche mit mehrstufiger Verifikation und klarem, reduziertem Workflow.</p>
 
-      <div class="ow-stat-row">
-        <div class="stat-tile">
-          <span class="stat-label">Profile im System</span>
-          <span class="stat-value">{{ candidate_count }}</span>
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col">
+
+  <!-- ── Hero + Captcha ── -->
+  <main class="flex-1 flex items-center justify-center px-4 py-10">
+    <div class="w-full max-w-6xl grid lg:grid-cols-2 gap-8 items-start">
+
+      <!-- Left: Brand + Benefits -->
+      <div class="space-y-8">
+
+        <!-- Logo + Brand Name -->
+        <div class="flex items-center gap-4">
+          <!-- TrueLens aperture icon (inline SVG) -->
+          <div class="shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="72" height="72" role="img" aria-label="TrueLens Logo">
+              <defs>
+                <linearGradient id="tl-bg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#1d4ed8"/>
+                  <stop offset="1" stop-color="#3b82f6"/>
+                </linearGradient>
+              </defs>
+              <!-- App icon background -->
+              <rect width="64" height="64" rx="14" fill="url(#tl-bg)"/>
+              <!-- Aperture blades (6 rotated ellipses) -->
+              <g transform="translate(32,32)" opacity="0.30">
+                <ellipse rx="5" ry="17" fill="white" transform="rotate(0)"/>
+                <ellipse rx="5" ry="17" fill="white" transform="rotate(30)"/>
+                <ellipse rx="5" ry="17" fill="white" transform="rotate(60)"/>
+                <ellipse rx="5" ry="17" fill="white" transform="rotate(90)"/>
+                <ellipse rx="5" ry="17" fill="white" transform="rotate(120)"/>
+                <ellipse rx="5" ry="17" fill="white" transform="rotate(150)"/>
+              </g>
+              <!-- Center lens circle -->
+              <circle cx="32" cy="32" r="11" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+              <!-- Checkmark -->
+              <polyline points="21,33 28,40 43,23" stroke="white" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-4xl font-black tracking-tight leading-none">
+              <span class="text-slate-900">True</span><span class="text-blue-600">Lens</span>
+            </h1>
+            <p class="text-slate-500 text-sm font-medium mt-1 tracking-widest uppercase">Clarity through verification</p>
+          </div>
         </div>
-        <div class="stat-tile">
-          <span class="stat-label">Gesamtaufrufe</span>
-          <span class="stat-value">{{ profile_views }}</span>
+
+        <!-- Headline -->
+        <div>
+          <h2 class="text-3xl font-bold text-slate-800 leading-snug">
+            Die vertrauenswürdige Datenbank<br class="hidden sm:block"> für Recruiter-Netzwerke
+          </h2>
+          <p class="text-slate-500 mt-3 text-base leading-relaxed">
+            Mehrstufige Identitätsverifikation, anonymes Community-Voting und lückenlose Datensicherheit –
+            damit Recruitingentscheidungen auf echten Fakten basieren.
+          </p>
+        </div>
+
+        <!-- Stats -->
+        <div class="flex gap-6">
+          <div class="bg-white rounded-xl px-5 py-4 shadow-sm border border-slate-100 text-center min-w-[110px]">
+            <div class="text-2xl font-bold text-blue-600">{{ candidate_count }}</div>
+            <div class="text-xs text-slate-500 mt-0.5 font-medium">Profile</div>
+          </div>
+          <div class="bg-white rounded-xl px-5 py-4 shadow-sm border border-slate-100 text-center min-w-[110px]">
+            <div class="text-2xl font-bold text-blue-600">{{ profile_views }}</div>
+            <div class="text-xs text-slate-500 mt-0.5 font-medium">Aufrufe</div>
+          </div>
+        </div>
+
+        <!-- Benefits grid -->
+        <div class="grid sm:grid-cols-3 gap-4">
+
+          <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
+            <div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center mb-3">
+              <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            </div>
+            <div class="font-semibold text-slate-800 text-sm">Vertrauenswürdig</div>
+            <div class="text-xs text-slate-500 mt-1 leading-relaxed">Transparenz und Integrität als Grundprinzip jeder Anfrage.</div>
+          </div>
+
+          <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
+            <div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center mb-3">
+              <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </div>
+            <div class="font-semibold text-slate-800 text-sm">Auffindbar</div>
+            <div class="text-xs text-slate-500 mt-1 leading-relaxed">Gezielte Mehrschritt-Suche für präzise Treffer ohne Rauschen.</div>
+          </div>
+
+          <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
+            <div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center mb-3">
+              <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+            </div>
+            <div class="font-semibold text-slate-800 text-sm">Verifiziert</div>
+            <div class="text-xs text-slate-500 mt-1 leading-relaxed">Jedes Profil wird durch Community-Votes laufend validiert.</div>
+          </div>
+
+          <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
+            <div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center mb-3">
+              <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            </div>
+            <div class="font-semibold text-slate-800 text-sm">Datensicher</div>
+            <div class="text-xs text-slate-500 mt-1 leading-relaxed">Nachname, E-Mail und Telefon werden automatisch maskiert.</div>
+          </div>
+
+          <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
+            <div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center mb-3">
+              <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </div>
+            <div class="font-semibold text-slate-800 text-sm">Community-Votes</div>
+            <div class="text-xs text-slate-500 mt-1 leading-relaxed">Anonymes Recruiter-Netzwerk bewertet Zuverlässigkeit kollektiv.</div>
+          </div>
+
+          <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
+            <div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center mb-3">
+              <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <div class="font-semibold text-slate-800 text-sm">Schnell & Sicher</div>
+            <div class="text-xs text-slate-500 mt-1 leading-relaxed">IP-Schutz, Captcha-Gate und JS-Token gegen Missbrauch.</div>
+          </div>
+
         </div>
       </div>
-    </section>
 
-    <section class="panel ow-auth-card" id="captcha-panel" x-data="captchaFlow()" x-init="init()">
-      <h2 class="ow-card-title">Sicherheitsprüfung</h2>
-      <p class="ow-card-sub">Löse das Captcha, um die Profilsuche freizuschalten.</p>
+      <!-- Right: Captcha Panel -->
+      <div class="lg:sticky lg:top-8">
+        <div class="bg-white rounded-2xl shadow-lg border border-slate-100 p-8" x-data="captchaFlow()" x-cloak>
 
-      <template x-if="captchaImage">
-        <img :src="captchaImage" alt="Captcha" class="ow-captcha-image mt-4">
-      </template>
+          <!-- Panel header -->
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            </div>
+            <div>
+              <h2 class="font-bold text-slate-900 text-lg leading-tight">Sicherheitsprüfung</h2>
+              <p class="text-slate-500 text-sm">Captcha lösen · Suche freischalten</p>
+            </div>
+          </div>
 
-      <label class="mt-4 block text-sm font-medium">Captcha Code</label>
-      <input x-model="code" type="text" class="field mt-1" placeholder="Code eingeben">
-      <button @click="verify()" class="btn-primary mt-4 w-full" :disabled="!code.trim()">Prüfung starten</button>
-      <p class="ow-inline-info mt-2" x-text="message"></p>
+          <template x-if="!verified">
+            <div>
+              <!-- Loading spinner -->
+              <template x-if="captchaLoading">
+                <div class="flex items-center justify-center gap-2 py-8 text-slate-400">
+                  <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                  </svg>
+                  <span class="text-sm">Captcha wird geladen…</span>
+                </div>
+              </template>
 
-      <template x-if="verified">
-        <div class="mt-6 border border-emerald-200 bg-emerald-50 rounded-xl p-4" x-cloak>
-          <h3 class="font-semibold text-emerald-900">Captcha erfolgreich</h3>
-          <p class="text-sm text-emerald-800 mt-1">Die schnelle Mehrschritt-Suche ist jetzt freigeschaltet.</p>
-          <a href="{% url 'dashboard' %}" class="btn-primary mt-4 inline-flex w-full justify-center">Zur Suche &rarr;</a>
+              <!-- Captcha image -->
+              <template x-if="captchaImage">
+                <div class="mb-4">
+                  <p class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Captcha</p>
+                  <img :src="captchaImage" alt="Captcha" class="w-full rounded-lg border border-slate-200 bg-slate-50">
+                </div>
+              </template>
+
+              <!-- Load error -->
+              <template x-if="loadError">
+                <div class="rounded-lg bg-red-50 border border-red-100 p-4 mb-4">
+                  <p class="text-sm text-red-700 mb-3" x-text="loadError"></p>
+                  <button @click="loadCaptcha()" class="text-sm font-medium text-blue-600 hover:underline">↺ Captcha neu laden</button>
+                </div>
+              </template>
+
+              <!-- Input + submit -->
+              <template x-if="captchaImage">
+                <div class="space-y-3">
+                  <input
+                    x-model="code"
+                    type="text"
+                    class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent tracking-widest font-mono uppercase"
+                    placeholder="CODE EINGEBEN"
+                    maxlength="6"
+                    @keydown.enter="verify()"
+                    autocomplete="off"
+                    spellcheck="false"
+                  >
+                  <button
+                    @click="verify()"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors text-sm disabled:opacity-50"
+                    :disabled="!code.trim() || verifying"
+                  >
+                    <span x-text="verifying ? 'Wird geprüft…' : 'Prüfung starten'"></span>
+                  </button>
+                </div>
+              </template>
+
+              <p class="text-sm text-red-600 mt-3" x-show="message" x-text="message"></p>
+            </div>
+          </template>
+
+          <!-- Success state -->
+          <template x-if="verified">
+            <div class="text-center py-4">
+              <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+              </div>
+              <h3 class="font-bold text-slate-900 text-lg mb-1">Verifiziert!</h3>
+              <p class="text-slate-500 text-sm mb-6">Die Profilsuche ist jetzt freigeschaltet.</p>
+              <a href="{% url 'dashboard' %}" class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors text-sm text-center">
+                Zur Suche &rarr;
+              </a>
+            </div>
+          </template>
+
+          <!-- Already logged in shortcut -->
+          {% if user.is_authenticated %}
+          <div class="mt-6 pt-5 border-t border-slate-100">
+            <a href="{% url 'dashboard' %}" class="flex items-center justify-between text-sm text-blue-600 hover:text-blue-800 font-medium group">
+              <span>Direkt zum Dashboard</span>
+              <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </a>
+          </div>
+          {% endif %}
+
+          <!-- Login link -->
+          {% if not user.is_authenticated %}
+          <div class="mt-6 pt-5 border-t border-slate-100 text-center">
+            <p class="text-xs text-slate-400">Bereits registriert?
+              <a href="{% url 'account_login' %}" class="text-blue-600 hover:underline font-medium">Anmelden</a>
+            </p>
+          </div>
+          {% endif %}
+
         </div>
-      </template>
-    </section>
-  </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="py-6 text-center text-xs text-slate-400 border-t border-slate-100 bg-white/50">
+    <span class="font-semibold text-slate-600">True<span class="text-blue-600">Lens</span></span>
+    &nbsp;·&nbsp; Clarity through verification
+    &nbsp;·&nbsp; <a href="{% url 'account_login' %}" class="hover:text-blue-600">Login</a>
+    &nbsp;·&nbsp; <a href="{% url 'account_signup' %}" class="hover:text-blue-600">Registrierung</a>
+  </footer>
 </div>
+
 <script>
   function captchaFlow() {
     return {
@@ -51,27 +251,58 @@
       code: "",
       message: "",
       verified: false,
+      captchaLoading: false,
+      verifying: false,
+      loadError: "",
       async init() {
-        const res = await fetch('/api/security/captcha/start', {method: 'POST', headers: {'X-Requested-With': 'XMLHttpRequest'}});
-        const data = await res.json();
-        this.captchaId = data.captcha_id;
-        this.captchaImage = data.image_b64;
+        await this.loadCaptcha();
+      },
+      async loadCaptcha() {
+        this.captchaLoading = true;
+        this.captchaImage = "";
+        this.loadError = "";
+        this.code = "";
+        this.message = "";
+        try {
+          const res = await fetch('/api/security/captcha/start', {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+          if (!data.ok) { this.loadError = data.error || 'Captcha konnte nicht geladen werden.'; return; }
+          this.captchaId = data.captcha_id;
+          this.captchaImage = data.image_b64;
+        } catch (e) {
+          this.loadError = 'Captcha konnte nicht geladen werden. Bitte erneut versuchen.';
+        } finally {
+          this.captchaLoading = false;
+        }
       },
       async verify() {
-        const res = await fetch('/api/security/captcha/verify', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest'},
-          body: JSON.stringify({captcha_id: this.captchaId, code: this.code}),
-        });
-        const data = await res.json();
-        if (data.ok) {
-          this.verified = true;
-          this.message = 'Captcha erfolgreich.';
-          if (data.js_gate_token) {
-            localStorage.setItem('tl_js_gate_token', data.js_gate_token);
+        if (!this.code.trim() || this.verifying) return;
+        this.verifying = true;
+        this.message = '';
+        try {
+          const res = await fetch('/api/security/captcha/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            body: JSON.stringify({ captcha_id: this.captchaId, code: this.code }),
+          });
+          const data = await res.json();
+          if (data.ok) {
+            this.verified = true;
+            if (data.js_gate_token) {
+              localStorage.setItem('tl_js_gate_token', data.js_gate_token);
+            }
+          } else {
+            this.message = data.error || 'Prüfung fehlgeschlagen.';
+            await this.loadCaptcha();
           }
-        } else {
-          this.message = data.error || 'Prüfung fehlgeschlagen.';
+        } catch (e) {
+          this.message = 'Verbindungsfehler. Bitte Seite neu laden.';
+        } finally {
+          this.verifying = false;
         }
       },
     };

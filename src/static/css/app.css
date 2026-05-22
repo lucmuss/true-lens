@@ -226,6 +226,7 @@ body {
   width: 100%;
   text-align: left;
   text-decoration: none;
+  cursor: pointer;
   color: var(--text-2);
   padding: 9px 10px;
   border-radius: var(--radius-sm);

@@ -22,7 +22,10 @@
       <a href="{% url 'admin_dashboard' %}" class="ow-nav-item">Admin-Dashboard</a>
       {% endif %}
       <div class="ow-nav-settings-sep"></div>
-      <a href="{% url 'account_logout' %}" class="ow-nav-item">Logout</a>
+      <form method="post" action="{% url 'account_logout' %}" style="margin:0">
+        {% csrf_token %}
+        <button type="submit" class="ow-nav-item">Logout</button>
+      </form>
     </nav>
 
     <div class="ow-sidebar-user">

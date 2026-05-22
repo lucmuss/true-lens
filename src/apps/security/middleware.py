@@ -33,10 +33,13 @@ class ApiGateMiddleware:
             return JsonResponse({"ok": False, "error": "IP temporarily banned"}, status=403)
 
         if path.startswith("/api/") and not path.startswith(self.ALLOWED_PATH_PREFIXES):
-            token = request.headers.get("X-JS-Gate", "")
-            ua = getattr(request, "client_ua", "")
-            if not validate_js_gate_token(token=token, ip=ip, user_agent=ua):
-                return JsonResponse({"ok": False, "error": "Missing or invalid JS gate token"}, status=403)
+            # Authenticated users are already verified by Django session — skip gate check.
+            user = getattr(request, "user", None)
+            if not (user and user.is_authenticated):
+                token = request.headers.get("X-JS-Gate", "")
+                ua = getattr(request, "client_ua", "")
+                if not validate_js_gate_token(token=token, ip=ip, user_agent=ua):
+                    return JsonResponse({"ok": False, "error": "Missing or invalid JS gate token"}, status=403)
 
         response = self.get_response(request)
         response["Content-Security-Policy"] = (

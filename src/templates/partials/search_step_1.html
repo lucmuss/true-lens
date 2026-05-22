@@ -323,32 +323,37 @@ function searchFlow(config) {
     async submitCreateProfile() {
       this.loading = true;
       this.createMessage = '';
-      const payload = {
-        first_name: this.first_name,
-        last_name: this.newProfile.last_name,
-        gender: this.gender,
-        country: this.country,
-        region: this.region,
-        city: this.newProfile.city,
-        birth_date: this.newProfile.birth_date || undefined,
-        hair_color: this.newProfile.hair_color || undefined,
-        email: this.newProfile.email || undefined,
-        phone: this.newProfile.phone || undefined,
-      };
-      const res = await this.apiFetch('/api/candidates/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-      this.loading = false;
-      if (!data.ok) {
-        this.createMessage = data.error || 'Fehler beim Erstellen.';
-        return;
+      try {
+        const payload = {
+          first_name: this.first_name,
+          last_name: this.newProfile.last_name,
+          gender: this.gender,
+          country: this.country,
+          region: this.region,
+          city: this.newProfile.city,
+          birth_date: this.newProfile.birth_date || undefined,
+          hair_color: this.newProfile.hair_color || undefined,
+          email: this.newProfile.email || undefined,
+          phone: this.newProfile.phone || undefined,
+        };
+        const res = await this.apiFetch('/api/candidates/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!data.ok) {
+          this.createMessage = this._userMsg(data.error) || 'Fehler beim Erstellen.';
+          return;
+        }
+        this.createMessage = `Profil erstellt (ID ${data.candidate_id}). ${data.credits_awarded} Credits gutgeschrieben.`;
+        this.showCreateForm = false;
+        this.newProfile = { last_name: '', birth_date: '', hair_color: '', city: '', email: '', phone: '' };
+      } catch (e) {
+        this.createMessage = 'Verbindungsfehler. Bitte erneut versuchen.';
+      } finally {
+        this.loading = false;
       }
-      this.createMessage = `Profil erstellt (ID ${data.candidate_id}). ${data.credits_awarded} Credits gutgeschrieben.`;
-      this.showCreateForm = false;
-      this.newProfile = { last_name: '', birth_date: '', hair_color: '', city: '', email: '', phone: '' };
     },
     resetSearch() {
       clearInterval(this.timerHandle);
@@ -416,23 +421,34 @@ function searchFlow(config) {
         }
       }, 1000);
     },
+    _userMsg(error) {
+      if (!error) return '';
+      if (error.includes('JS gate token')) return 'Bitte zuerst das Captcha auf der Startseite lösen.';
+      return error;
+    },
     async loadCountries() {
-      const res = await this.apiFetch(`/api/search/countries?q=${encodeURIComponent(this.country || '')}`);
-      const data = await res.json();
-      this.countrySuggestions = data.suggestions || [];
+      try {
+        const res = await this.apiFetch(`/api/search/countries?q=${encodeURIComponent(this.country || '')}`);
+        const data = await res.json();
+        this.countrySuggestions = data.suggestions || [];
+      } catch (e) { this.countrySuggestions = []; }
     },
     async loadRegions() {
       if (!this.country) return;
-      const res = await this.apiFetch(`/api/search/regions?country=${encodeURIComponent(this.country)}&q=${encodeURIComponent(this.region || '')}`);
-      const data = await res.json();
-      this.regionSuggestions = data.suggestions || [];
+      try {
+        const res = await this.apiFetch(`/api/search/regions?country=${encodeURIComponent(this.country)}&q=${encodeURIComponent(this.region || '')}`);
+        const data = await res.json();
+        this.regionSuggestions = data.suggestions || [];
+      } catch (e) { this.regionSuggestions = []; }
     },
     async loadCities() {
       if (!this.country || !this.region || !this.stepValue || this.stepValue.length < 2) return;
-      const params = new URLSearchParams({ q: this.stepValue, country: this.country, region: this.region });
-      const res = await this.apiFetch(`/api/search/cities?${params.toString()}`);
-      const data = await res.json();
-      this.citySuggestions = data.suggestions || [];
+      try {
+        const params = new URLSearchParams({ q: this.stepValue, country: this.country, region: this.region });
+        const res = await this.apiFetch(`/api/search/cities?${params.toString()}`);
+        const data = await res.json();
+        this.citySuggestions = data.suggestions || [];
+      } catch (e) { this.citySuggestions = []; }
     },
     async apiFetch(url, options = {}) {
       const headers = this.requestHeaders(options.headers || {});
@@ -444,25 +460,30 @@ function searchFlow(config) {
       this.profile = null;
       this.selectedCase = '';
       this.candidateCount = null;
-      const res = await this.apiFetch('/api/search/start', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          country: this.country,
-          region: this.region,
-          first_name: this.first_name,
-          gender: this.gender,
-        }),
-      });
-      const data = await res.json();
-      this.loading = false;
-      if (!data.ok) {
-        this.message = data.error || 'Suche fehlgeschlagen';
-        return;
+      try {
+        const res = await this.apiFetch('/api/search/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            country: this.country,
+            region: this.region,
+            first_name: this.first_name,
+            gender: this.gender,
+          }),
+        });
+        const data = await res.json();
+        if (!data.ok) {
+          this.message = this._userMsg(data.error) || 'Suche fehlgeschlagen';
+          return;
+        }
+        this.sessionToken = data.session_token;
+        this.candidateCount = data.candidate_count;
+        this.message = data.message || '';
+      } catch (e) {
+        this.message = 'Verbindungsfehler. Bitte Seite neu laden.';
+      } finally {
+        this.loading = false;
       }
-      this.sessionToken = data.session_token;
-      this.candidateCount = data.candidate_count;
-      this.message = data.message || '';
     },
     chooseCase(key) {
       this.selectedCase = key;
@@ -492,54 +513,61 @@ function searchFlow(config) {
     async submitStep() {
       if (!this.sessionToken || !this.selectedCase || !this.currentField) return;
       this.loading = true;
-      const payload = {
-        session_token: this.sessionToken,
-        case_type: this.selectedCase,
-      };
-      payload[this.currentField] = this.stepValue;
-      const res = await this.apiFetch(`/api/search/step/${this.currentStepNumber}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-      this.loading = false;
-      if (!data.ok) {
-        this.stepMessage = data.error || 'Schritt fehlgeschlagen';
-        return;
+      try {
+        const payload = {
+          session_token: this.sessionToken,
+          case_type: this.selectedCase,
+        };
+        payload[this.currentField] = this.stepValue;
+        const res = await this.apiFetch(`/api/search/step/${this.currentStepNumber}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!data.ok) {
+          this.stepMessage = this._userMsg(data.error) || 'Schritt fehlgeschlagen';
+          return;
+        }
+        if (data.resolved) {
+          clearInterval(this.timerHandle);
+          this.stepMessage = 'Profil erfolgreich verifiziert.';
+          await this.loadProfile();
+          return;
+        }
+        this.caseIndex += 1;
+        this.currentStepNumber += 1;
+        this.currentField = this.caseByKey().fields[this.caseIndex];
+        this.stepValue = '';
+        this.stepMessage = `Noch ${data.remaining_candidates} mögliche Treffer.`;
+        this.resetTimer();
+      } catch (e) {
+        this.stepMessage = 'Verbindungsfehler. Bitte erneut versuchen.';
+      } finally {
+        this.loading = false;
       }
-
-      if (data.resolved) {
-        clearInterval(this.timerHandle);
-        this.stepMessage = 'Profil erfolgreich verifiziert.';
-        await this.loadProfile();
-        return;
-      }
-
-      this.caseIndex += 1;
-      this.currentStepNumber += 1;
-      this.currentField = this.caseByKey().fields[this.caseIndex];
-      this.stepValue = '';
-      this.stepMessage = `Noch ${data.remaining_candidates} moegliche Treffer.`;
-      this.resetTimer();
     },
     async loadProfile() {
-      const res = await this.apiFetch(`/api/search/session/${this.sessionToken}/profile`);
-      const data = await res.json();
-      if (!data.ok) {
-        this.stepMessage = data.error || 'Profil konnte nicht geladen werden';
-        return;
+      try {
+        const res = await this.apiFetch(`/api/search/session/${this.sessionToken}/profile`);
+        const data = await res.json();
+        if (!data.ok) {
+          this.stepMessage = this._userMsg(data.error) || 'Profil konnte nicht geladen werden';
+          return;
+        }
+        this.profile = data;
+        await this.refreshVotes();
+      } catch (e) {
+        this.stepMessage = 'Verbindungsfehler beim Laden des Profils.';
       }
-      this.profile = data;
-      await this.refreshVotes();
     },
     async refreshVotes() {
       if (!this.profile) return;
-      const res = await this.apiFetch(`/api/candidates/${this.profile.id}/votes`);
-      const data = await res.json();
-      if (data.ok) {
-        this.profile.vote_breakdown = data.votes;
-      }
+      try {
+        const res = await this.apiFetch(`/api/candidates/${this.profile.id}/votes`);
+        const data = await res.json();
+        if (data.ok) this.profile.vote_breakdown = data.votes;
+      } catch (e) { /* non-critical */ }
     },
     async submitVote() {
       if (!this.profile) return;
@@ -547,23 +575,27 @@ function searchFlow(config) {
         this.stepMessage = 'Maximal 3 Kategorien erlaubt.';
         return;
       }
-      const res = await this.apiFetch(`/api/candidates/${this.profile.id}/vote`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          attribute_codes: this.selectedAttributes,
-          anonymous: this.anonymousVote,
-        }),
-      });
-      const data = await res.json();
-      if (!data.ok) {
-        this.stepMessage = data.error || 'Vote fehlgeschlagen.';
-        return;
+      try {
+        const res = await this.apiFetch(`/api/candidates/${this.profile.id}/vote`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            attribute_codes: this.selectedAttributes,
+            anonymous: this.anonymousVote,
+          }),
+        });
+        const data = await res.json();
+        if (!data.ok) {
+          this.stepMessage = this._userMsg(data.error) || 'Vote fehlgeschlagen.';
+          return;
+        }
+        this.stepMessage = 'Vote gespeichert.';
+        this.selectedAttributes = [];
+        this.anonymousVote = false;
+        await this.refreshVotes();
+      } catch (e) {
+        this.stepMessage = 'Verbindungsfehler beim Speichern des Votes.';
       }
-      this.stepMessage = 'Vote gespeichert.';
-      this.selectedAttributes = [];
-      this.anonymousVote = false;
-      await this.refreshVotes();
     },
   }
 }
