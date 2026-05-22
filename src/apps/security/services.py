@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import base64
 import hashlib
 import hmac
 import logging
@@ -33,20 +32,18 @@ def _digest(code: str, salt: str) -> str:
 def create_captcha_challenge() -> dict[str, str]:
     code = "".join(secrets.choice("ABCDEFGHJKLMNPQRSTUVWXYZ23456789") for _ in range(6))
     salt = secrets.token_hex(8)
-    challenge = CaptchaChallenge.objects.create(
-        code_digest=_digest(code, salt),
-        salt=salt,
-        expires_at=timezone.now() + timedelta(minutes=5),
-    )
 
     image = ImageCaptcha(width=240, height=70)
     png_bytes = image.generate(code).getvalue()
-    image_b64 = "data:image/png;base64," + base64.b64encode(png_bytes).decode("utf-8")
 
-    return {
-        "captcha_id": challenge.captcha_id.hex,
-        "image_b64": image_b64,
-    }
+    challenge = CaptchaChallenge.objects.create(
+        code_digest=_digest(code, salt),
+        salt=salt,
+        image_data=png_bytes,
+        expires_at=timezone.now() + timedelta(minutes=5),
+    )
+
+    return {"captcha_id": challenge.captcha_id.hex}
 
 
 def verify_captcha_challenge(*, captcha_id: str, answer: str, ip: str, user=None) -> bool:

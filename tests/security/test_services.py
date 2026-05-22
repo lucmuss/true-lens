@@ -21,9 +21,14 @@ from apps.security.services import (
 
 @pytest.mark.django_db
 def test_create_captcha_challenge_persists_row():
+    from apps.security.models import CaptchaChallenge
+
     data = create_captcha_challenge()
     assert "captcha_id" in data
-    assert data["image_b64"].startswith("data:image/png;base64,")
+    assert "image_b64" not in data
+
+    challenge = CaptchaChallenge.objects.get(captcha_id=data["captcha_id"])
+    assert bytes(challenge.image_data)[:4] == b"\x89PNG"  # valid PNG magic bytes
 
 
 @pytest.mark.django_db

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}E-Mail bestätigen · {{ PROJECT_NAME }}{% endblock %}
+{% block body %}
+<div class="ow-auth-wrap">
+  <div class="max-w-md w-full">
+    <div class="panel p-8 text-center">
+      <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+        </svg>
+      </div>
+      <h1 class="text-xl font-bold text-slate-900 mb-2">Bestätigungs-E-Mail gesendet</h1>
+      <p class="text-slate-500 text-sm mb-2">
+        Wir haben dir einen Bestätigungslink an deine E-Mail-Adresse gesendet.
+      </p>
+      <p class="text-slate-500 text-sm mb-6">
+        Bitte klicke auf den Link in der E-Mail, um dein Konto zu aktivieren.
+        Prüfe auch deinen Spam-Ordner.
+      </p>
+      <a href="{% url 'account_login' %}" class="btn-primary inline-block px-6">Zur Anmeldung</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

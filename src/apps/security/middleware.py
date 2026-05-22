@@ -19,6 +19,7 @@ class ApiGateMiddleware:
     ALLOWED_PATH_PREFIXES = (
         "/api/security/captcha/start",
         "/api/security/captcha/verify",
+        "/api/security/captcha/image/",
         "/api/credits/webhook/stripe",
     )
 
@@ -45,6 +46,6 @@ class ApiGateMiddleware:
         response["Content-Security-Policy"] = (
             "default-src 'self'; script-src 'self' https://unpkg.com https://cdn.tailwindcss.com; "
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.tailwindcss.com; "
-            "font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self';"
+            "font-src 'self' https://fonts.gstatic.com; img-src 'self'; connect-src 'self';"
         )
         return response

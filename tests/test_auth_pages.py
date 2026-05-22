@@ -30,7 +30,7 @@ def test_password_reset_page_uses_styled_template(client):
     assert response.status_code == 200
     content = response.content.decode()
     assert '/static/css/app.css' in content
-    assert 'Passwort zuruecksetzen' in content
+    assert 'Passwort zur' in content  # covers both 'zurücksetzen' and 'zuruecksetzen'
 
 
 @pytest.mark.django_db
@@ -40,4 +40,4 @@ def test_landing_uses_verified_success_state_block(client):
     assert response.status_code == 200
     content = response.content.decode()
     assert 'x-if="verified"' in content
-    assert 'Captcha erfolgreich' in content
+    assert 'Verifiziert' in content

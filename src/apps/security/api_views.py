@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import json
 
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET, require_POST
 
+from .models import CaptchaChallenge
 from .services import create_captcha_challenge, create_js_gate_token, extract_client_ip, verify_captcha_challenge
 
 
@@ -23,6 +25,17 @@ def _load_body(request) -> dict:
 def captcha_start(request):
     data = create_captcha_challenge()
     return JsonResponse({"ok": True, **data})
+
+
+@require_GET
+def captcha_image(request, captcha_id: str):
+    try:
+        challenge = CaptchaChallenge.objects.get(captcha_id=captcha_id)
+    except CaptchaChallenge.DoesNotExist:
+        return HttpResponse(status=404)
+    if challenge.solved_at or challenge.expires_at <= timezone.now() or not challenge.image_data:
+        return HttpResponse(status=410)
+    return HttpResponse(bytes(challenge.image_data), content_type="image/png")
 
 
 @csrf_exempt

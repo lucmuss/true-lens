@@ -272,7 +272,7 @@
           const data = await res.json();
           if (!data.ok) { this.loadError = data.error || 'Captcha konnte nicht geladen werden.'; return; }
           this.captchaId = data.captcha_id;
-          this.captchaImage = data.image_b64;
+          this.captchaImage = '/api/security/captcha/image/' + data.captcha_id;
         } catch (e) {
           this.loadError = 'Captcha konnte nicht geladen werden. Bitte erneut versuchen.';
         } finally {

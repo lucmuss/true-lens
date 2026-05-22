@@ -10,6 +10,7 @@ class CaptchaChallenge(models.Model):
     captcha_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     code_digest = models.CharField(max_length=64)
     salt = models.CharField(max_length=32)
+    image_data = models.BinaryField(null=True, blank=True)
     attempts = models.PositiveSmallIntegerField(default=0)
     max_attempts = models.PositiveSmallIntegerField(default=5)
     expires_at = models.DateTimeField()

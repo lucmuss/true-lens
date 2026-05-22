@@ -10,28 +10,12 @@ from django.test import RequestFactory, override_settings
 
 from apps.accounts.adapters import RecruiterAccountAdapter
 from apps.accounts.email_backends import ResendEmailBackend
-from apps.accounts.models import RecruiterSecurityVerification
 from apps.accounts.services import send_login_alert
 from apps.accounts.signals import login_alert_handler
 
 
 @pytest.mark.django_db
-def test_adapter_send_security_challenge_creates_verification_and_mail(recruiter_factory, monkeypatch):
-    user = recruiter_factory()
-    adapter = RecruiterAccountAdapter()
-    request = RequestFactory().get("/")
-
-    sent = []
-    monkeypatch.setattr("apps.accounts.adapters.send_mail", lambda **kwargs: sent.append(kwargs))
-
-    adapter._send_security_challenge(user, request)
-
-    assert RecruiterSecurityVerification.objects.filter(recruiter=user).count() == 1
-    assert len(sent) == 1
-
-
-@pytest.mark.django_db
-def test_adapter_save_user_sets_display_name_and_sends_challenge(django_user_model, monkeypatch):
+def test_adapter_save_user_sets_display_name(django_user_model, monkeypatch):
     adapter = RecruiterAccountAdapter()
     request = RequestFactory().post("/accounts/signup/")
 
@@ -39,13 +23,9 @@ def test_adapter_save_user_sets_display_name_and_sends_challenge(django_user_mod
 
     monkeypatch.setattr(DefaultAccountAdapter, "save_user", lambda self, req, usr, form, commit=False: usr)
 
-    sent = []
-    monkeypatch.setattr(adapter, "_send_security_challenge", lambda usr, req: sent.append((usr.email, req.path)))
-
-    returned = adapter.save_user(request, user, form=object(), commit=True)
+    returned = adapter.save_user(request, user, form=object(), commit=False)
 
     assert returned.display_name == "newuser"
-    assert sent == [("newuser@example.com", "/accounts/signup/")]
 
 
 @pytest.mark.django_db

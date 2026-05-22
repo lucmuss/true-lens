@@ -15,7 +15,12 @@ def test_captcha_start_returns_challenge(client):
     data = response.json()
     assert data["ok"] is True
     assert "captcha_id" in data
-    assert data["image_b64"].startswith("data:image/png;base64,")
+    assert "image_b64" not in data
+
+    # Verify the image endpoint serves the PNG
+    img_response = client.get(f"/api/security/captcha/image/{data['captcha_id']}")
+    assert img_response.status_code == 200
+    assert img_response["Content-Type"] == "image/png"
 
 
 @pytest.mark.django_db
