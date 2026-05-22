@@ -419,11 +419,11 @@ body {
   color: var(--text-2);
 }
 
-.rch-flow .ow-card {
+.tl-flow .ow-card {
   border-radius: var(--radius-lg);
 }
 
-.rch-stepper-row {
+.tl-stepper-row {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -450,38 +450,38 @@ body {
   color: var(--success-text);
 }
 
-.rch-search-grid {
+.tl-search-grid {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: 12px;
 }
 
-.rch-input-group {
+.tl-input-group {
   grid-column: span 6;
 }
 
-.rch-input-group-name {
+.tl-input-group-name {
   grid-column: span 7;
 }
 
-.rch-find-wrap {
+.tl-find-wrap {
   grid-column: span 3;
   display: grid;
   align-items: end;
 }
 
-.rch-input-label {
+.tl-input-label {
   display: block;
   margin-bottom: 6px;
   font-size: 0.82rem;
   color: var(--text-2);
 }
 
-.rch-field-with-icon {
+.tl-field-with-icon {
   position: relative;
 }
 
-.rch-field-icon {
+.tl-field-icon {
   position: absolute;
   left: 10px;
   top: 50%;
@@ -491,16 +491,16 @@ body {
   pointer-events: none;
 }
 
-.rch-field-pad {
+.tl-field-pad {
   padding-left: 28px;
 }
 
-.rch-find-btn {
+.tl-find-btn {
   min-height: 48px;
   width: 100%;
 }
 
-.rch-candidate-chip {
+.tl-candidate-chip {
   display: inline-flex;
   align-items: center;
   border-radius: 999px;
@@ -512,12 +512,12 @@ body {
   font-size: 0.85rem;
 }
 
-.rch-case-stack {
+.tl-case-stack {
   display: grid;
   gap: 9px;
 }
 
-.rch-case-btn {
+.tl-case-btn {
   width: 100%;
   text-align: left;
   border: 1px solid var(--card-border);
@@ -527,18 +527,18 @@ body {
   transition: border-color 120ms, background 120ms;
 }
 
-.rch-case-btn:hover {
+.tl-case-btn:hover {
   border-color: rgba(59, 130, 246, 0.25);
   background: var(--accent-light);
 }
 
-.rch-case-title {
+.tl-case-title {
   font-weight: 600;
   font-size: 0.86rem;
   color: var(--text-1);
 }
 
-.rch-timer-track {
+.tl-timer-track {
   width: 100%;
   height: 8px;
   border-radius: 999px;
@@ -546,7 +546,7 @@ body {
   overflow: hidden;
 }
 
-.rch-timer-fill {
+.tl-timer-fill {
   height: 100%;
   border-radius: inherit;
   background: linear-gradient(90deg, #1db954, #3b82f6);
@@ -743,13 +743,13 @@ body {
     grid-template-columns: 1fr;
   }
 
-  .rch-search-grid {
+  .tl-search-grid {
     grid-template-columns: 1fr;
   }
 
-  .rch-input-group,
-  .rch-input-group-name,
-  .rch-find-wrap {
+  .tl-input-group,
+  .tl-input-group-name,
+  .tl-find-wrap {
     grid-column: span 1;
   }
 }

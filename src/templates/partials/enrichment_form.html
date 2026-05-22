@@ -10,16 +10,16 @@
     <div class="space-y-3 mt-4">
       <p class="ow-card-sub">Trage fehlende oder aktualisierte Informationen ein. Bei 2+ neuen Feldern gibt es 1 Credit. Aenderungen werden vom Admin geprueft.</p>
       <div class="grid sm:grid-cols-2 gap-3">
-        <div class="rch-input-group">
-          <label class="rch-input-label">Zweit-E-Mail</label>
+        <div class="tl-input-group">
+          <label class="tl-input-label">Zweit-E-Mail</label>
           <input x-model="fields.secondary_email" type="email" class="field" placeholder="weitere@email.com">
         </div>
-        <div class="rch-input-group">
-          <label class="rch-input-label">Zweit-Telefon</label>
+        <div class="tl-input-group">
+          <label class="tl-input-label">Zweit-Telefon</label>
           <input x-model="fields.secondary_phone" type="tel" class="field" placeholder="+491761234567">
         </div>
-        <div class="rch-input-group">
-          <label class="rch-input-label">Haarfarbe</label>
+        <div class="tl-input-group">
+          <label class="tl-input-label">Haarfarbe</label>
           <select x-model="fields.hair_color" class="field">
             <option value="">Unveraendert</option>
             {% for value, label in hair_colors %}
@@ -27,16 +27,16 @@
             {% endfor %}
           </select>
         </div>
-        <div class="rch-input-group">
-          <label class="rch-input-label">Dating-Profil-URL</label>
+        <div class="tl-input-group">
+          <label class="tl-input-label">Dating-Profil-URL</label>
           <input x-model="fields.dating_profile_url" type="url" class="field" placeholder="https://tinder.com/...">
         </div>
-        <div class="rch-input-group">
-          <label class="rch-input-label">Stadt</label>
+        <div class="tl-input-group">
+          <label class="tl-input-label">Stadt</label>
           <input x-model="fields.city" type="text" class="field" placeholder="Neue Stadt">
         </div>
-        <div class="rch-input-group">
-          <label class="rch-input-label">Provinz / Region</label>
+        <div class="tl-input-group">
+          <label class="tl-input-label">Provinz / Region</label>
           <input x-model="fields.region" type="text" class="field" placeholder="Neue Region">
         </div>
       </div>
@@ -63,7 +63,7 @@ function enrichmentForm(candidateId) {
     const h = { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' };
     const m = document.cookie.match(/(?:^|; )csrftoken=([^;]+)/);
     if (m) h['X-CSRFToken'] = decodeURIComponent(m[1]);
-    const gate = localStorage.getItem('rch_js_gate_token');
+    const gate = localStorage.getItem('tl_js_gate_token');
     if (gate) h['X-JS-Gate'] = gate;
     return h;
   }

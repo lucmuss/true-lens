@@ -50,7 +50,7 @@ class Command(BaseCommand):
                 "https://api.stripe.com/v1/charges?limit=1",
                 auth=(key, ""),
                 timeout=timeout,
-                headers={"User-Agent": "rch-preflight/1.0"},
+                headers={"User-Agent": "truelens-preflight/1.0"},
             )
         except requests.RequestException as exc:
             return CheckResult("Stripe", False, f"network error: {exc}")
@@ -71,7 +71,7 @@ class Command(BaseCommand):
                 headers={
                     "Authorization": f"Bearer {key}",
                     "Accept": "application/json",
-                    "User-Agent": "rch-preflight/1.0",
+                    "User-Agent": "truelens-preflight/1.0",
                 },
             )
         except requests.RequestException as exc:

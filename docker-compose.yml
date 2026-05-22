@@ -20,7 +20,7 @@ services:
       retries: 12
       start_period: 90s
     networks:
-      - recruiter-candidate-hub
+      - true-lens
       - apps-shared
 
   nginx:
@@ -42,33 +42,33 @@ services:
       retries: 12
       start_period: 45s
     networks:
-      - recruiter-candidate-hub
+      - true-lens
 
   db:
     image: postgres:16-alpine
     profiles: ["localdb"]
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-recruiter_candidate_hub}
-      POSTGRES_USER: ${POSTGRES_USER:-recruiter_candidate_hub}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-recruiter_candidate_hub}
+      POSTGRES_DB: ${POSTGRES_DB:-true_lens}
+      POSTGRES_USER: ${POSTGRES_USER:-true_lens}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-true_lens}
     ports:
       - "${POSTGRES_HOST_PORT:-5439}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-recruiter_candidate_hub} -d ${POSTGRES_DB:-recruiter_candidate_hub}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-true_lens} -d ${POSTGRES_DB:-true_lens}"]
       interval: 5s
       timeout: 5s
       retries: 20
     networks:
-      - recruiter-candidate-hub
+      - true-lens
 
 volumes:
   postgres_data:
 
 networks:
-  recruiter-candidate-hub:
+  true-lens:
     driver: bridge
   apps-shared:
     external: true

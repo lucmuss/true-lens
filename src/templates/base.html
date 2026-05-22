@@ -22,7 +22,7 @@
     document.body.addEventListener("htmx:configRequest", function (event) {
       const token = document.querySelector("[name=csrfmiddlewaretoken]");
       if (token) event.detail.headers["X-CSRFToken"] = token.value;
-      const gate = localStorage.getItem("rch_js_gate_token");
+      const gate = localStorage.getItem("tl_js_gate_token");
       if (gate) event.detail.headers["X-JS-Gate"] = gate;
     });
   </script>

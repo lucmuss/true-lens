@@ -5,8 +5,8 @@ import dj_database_url
 
 from .env import BASE_DIR, env_bool, env_int, env_list, env_str
 
-PROJECT_NAME = env_str("PROJECT_NAME", "Recruiter Candidate Hub")
-PROJECT_SLUG = env_str("PROJECT_SLUG", "recruiter_candidate_hub")
+PROJECT_NAME = env_str("PROJECT_NAME", "TrueLens")
+PROJECT_SLUG = env_str("PROJECT_SLUG", "true_lens")
 APP_PUBLIC_URL = env_str("APP_PUBLIC_URL", "http://localhost:18087")
 
 DJANGO_ENV = env_str("DJANGO_ENV", "development")
@@ -78,7 +78,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "app.wsgi.application"
 ASGI_APPLICATION = "app.asgi.application"
 
-DATABASE_URL = env_str("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/recruiter_candidate_hub")
+DATABASE_URL = env_str("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/true_lens")
 DATABASES = {
     "default": dj_database_url.parse(
         DATABASE_URL,
@@ -202,6 +202,8 @@ SECURE_HSTS_SECONDS = env_int("DJANGO_SECURE_HSTS_SECONDS", 31536000 if DJANGO_E
 SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool("DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS", DJANGO_ENV == "production")
 SECURE_HSTS_PRELOAD = env_bool("DJANGO_SECURE_HSTS_PRELOAD", DJANGO_ENV == "production")
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+# Trust X-Forwarded-Proto from Nginx/Cloudflare reverse proxy
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 X_FRAME_OPTIONS = "DENY"
 
 PASSWORD_HASHERS = [
@@ -281,7 +283,7 @@ COORDINATOR_DOWN_THRESHOLD_SECONDS = env_int("COORDINATOR_DOWN_THRESHOLD_SECONDS
 
 # PWA
 PWA_APP_NAME = PROJECT_NAME
-PWA_APP_SHORT_NAME = "RCH"
+PWA_APP_SHORT_NAME = "TrueLens"
 PWA_APP_DESCRIPTION = "Secure candidate lookup"
 PWA_APP_THEME_COLOR = "#111827"
 PWA_APP_BACKGROUND_COLOR = "#f3f4f6"

@@ -1,7 +1,7 @@
 [project]
-name = "recruiter-candidate-hub"
+name = "true-lens"
 version = "0.1.0"
-description = "Secure recruiter candidate lookup platform"
+description = "TrueLens — clarity through verified profile lookup"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

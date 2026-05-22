@@ -4,8 +4,8 @@
 <div class="ow-auth-wrap">
   <div class="ow-auth-grid">
     <section class="panel ow-hero-card">
-      <div class="ow-hero-mark">RCH</div>
-      <h1 class="ow-hero-title">Recruiter Candidate Hub</h1>
+      <div class="ow-hero-mark"><svg viewBox="0 0 20 20" width="26" height="26" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M10 2.5L7.5 7.5h5L10 2.5z" fill="rgba(255,255,255,0.62)"/><path d="M10 2.5L7.5 7.5h5L10 2.5z" fill="rgba(255,255,255,0.52)" transform="rotate(60 10 10)"/><path d="M10 2.5L7.5 7.5h5L10 2.5z" fill="rgba(255,255,255,0.46)" transform="rotate(120 10 10)"/><path d="M10 2.5L7.5 7.5h5L10 2.5z" fill="rgba(255,255,255,0.38)" transform="rotate(180 10 10)"/><path d="M10 2.5L7.5 7.5h5L10 2.5z" fill="rgba(255,255,255,0.38)" transform="rotate(240 10 10)"/><path d="M10 2.5L7.5 7.5h5L10 2.5z" fill="rgba(255,255,255,0.38)" transform="rotate(300 10 10)"/><path d="M7 10.5l2 2 4-4.5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <h1 class="ow-hero-title">TrueLens</h1>
       <p class="ow-hero-sub">Schnelle, sichere Profilsuche mit mehrstufiger Verifikation und klarem, reduziertem Workflow.</p>
 
       <div class="ow-stat-row">
@@ -66,7 +66,7 @@
           this.verified = true;
           this.message = 'Captcha erfolgreich.';
           if (data.js_gate_token) {
-            localStorage.setItem('rch_js_gate_token', data.js_gate_token);
+            localStorage.setItem('tl_js_gate_token', data.js_gate_token);
           }
         } else {
           this.message = data.error || 'Pruefung fehlgeschlagen.';

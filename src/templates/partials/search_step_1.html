@@ -1,4 +1,4 @@
-<div class="rch-flow space-y-5" x-data="searchFlow({ stepTimeout: {{ SEARCH_STEP_TIMEOUT_SECONDS }}, attributes: [
+<div class="tl-flow space-y-5" x-data="searchFlow({ stepTimeout: {{ SEARCH_STEP_TIMEOUT_SECONDS }}, attributes: [
   {% for attr in attributes %}{ code: {{ attr.code }}, label: '{{ attr.label|escapejs }}', icon: '{{ attr.icon|escapejs }}' },{% endfor %}
 ], hairColors: [
   {% for value,label in hair_colors %}{ value: '{{ value }}', label: '{{ label|escapejs }}' },{% endfor %}
@@ -11,7 +11,7 @@
       </div>
       <button class="btn-secondary" @click="resetSearch">Neue Suche</button>
     </div>
-    <div class="rch-stepper-row mt-4">
+    <div class="tl-stepper-row mt-4">
       <span :class="stepPillClass(1)">1. Basisdaten</span>
       <span :class="stepPillClass(2)">2. Verifizierungsfall</span>
       <span :class="stepPillClass(3)">3. Profil & Vote</span>
@@ -22,12 +22,12 @@
     <div class="ow-card-title-row">
       <h3 class="ow-card-title">Schritt 1: Basisdaten</h3>
     </div>
-    <div class="rch-search-grid mt-4">
-      <div class="rch-input-group">
-        <label class="rch-input-label">Land</label>
-        <div class="rch-field-with-icon">
-          <span class="rch-field-icon">⌄</span>
-          <input x-model="country" @input.debounce.250ms="loadCountries" list="country-list" class="field rch-field-pad" placeholder="z.B. Germany">
+    <div class="tl-seatl-grid mt-4">
+      <div class="tl-input-group">
+        <label class="tl-input-label">Land</label>
+        <div class="tl-field-with-icon">
+          <span class="tl-field-icon">⌄</span>
+          <input x-model="country" @input.debounce.250ms="loadCountries" list="country-list" class="field tl-field-pad" placeholder="z.B. Germany">
         </div>
         <datalist id="country-list">
           <template x-for="item in countrySuggestions" :key="item.value">
@@ -36,11 +36,11 @@
         </datalist>
       </div>
 
-      <div class="rch-input-group">
-        <label class="rch-input-label">Provinz / Bundesland</label>
-        <div class="rch-field-with-icon">
-          <span class="rch-field-icon">⌄</span>
-          <input x-model="region" @input.debounce.250ms="loadRegions" list="region-list" class="field rch-field-pad" :disabled="!country" placeholder="z.B. Sachsen">
+      <div class="tl-input-group">
+        <label class="tl-input-label">Provinz / Bundesland</label>
+        <div class="tl-field-with-icon">
+          <span class="tl-field-icon">⌄</span>
+          <input x-model="region" @input.debounce.250ms="loadRegions" list="region-list" class="field tl-field-pad" :disabled="!country" placeholder="z.B. Sachsen">
         </div>
         <datalist id="region-list">
           <template x-for="item in regionSuggestions" :key="item.value">
@@ -49,19 +49,19 @@
         </datalist>
       </div>
 
-      <div class="rch-input-group rch-input-group-name">
-        <label class="rch-input-label">Vorname</label>
-        <div class="rch-field-with-icon">
-          <span class="rch-field-icon">◉</span>
-          <input x-model="first_name" class="field field-lg rch-field-pad" :disabled="!region" placeholder="z.B. Clara">
+      <div class="tl-input-group tl-input-group-name">
+        <label class="tl-input-label">Vorname</label>
+        <div class="tl-field-with-icon">
+          <span class="tl-field-icon">◉</span>
+          <input x-model="first_name" class="field field-lg tl-field-pad" :disabled="!region" placeholder="z.B. Clara">
         </div>
       </div>
 
-      <div class="rch-input-group">
-        <label class="rch-input-label">Geschlecht</label>
-        <div class="rch-field-with-icon">
-          <span class="rch-field-icon">⌄</span>
-          <select x-model="gender" class="field rch-field-pad" :disabled="!first_name">
+      <div class="tl-input-group">
+        <label class="tl-input-label">Geschlecht</label>
+        <div class="tl-field-with-icon">
+          <span class="tl-field-icon">⌄</span>
+          <select x-model="gender" class="field tl-field-pad" :disabled="!first_name">
             <option value="">Bitte waehlen</option>
             <option value="female">Female</option>
             <option value="male">Male</option>
@@ -70,8 +70,8 @@
         </div>
       </div>
 
-      <div class="rch-find-wrap">
-        <button @click="startSearch" class="btn-primary rch-find-btn" :disabled="!canStart() || loading">
+      <div class="tl-find-wrap">
+        <button @click="startSearch" class="btn-primary tl-find-btn" :disabled="!canStart() || loading">
           <span x-show="!loading">Treffer pruefen</span>
           <span x-show="loading">Pruefe...</span>
         </button>
@@ -84,7 +84,7 @@
     <section class="ow-card">
       <h3 class="ow-card-title">Schritt 2: Verifizierungsfall</h3>
       <div class="flex flex-wrap items-center gap-3 mt-3">
-        <div class="rch-candidate-chip" x-text="resultHeadline()"></div>
+        <div class="tl-candidate-chip" x-text="resultHeadline()"></div>
         <div class="ow-badge-blue">
           <strong x-text="candidateCount"></strong> Treffer
         </div>
@@ -93,10 +93,10 @@
       <template x-if="candidateCount > 0">
         <div class="mt-4">
           <p class="text-sm text-slate-600">Waehle die Information, die du kennst:</p>
-          <div class="rch-case-stack mt-3">
+          <div class="tl-case-stack mt-3">
             <template x-for="item in cases" :key="item.key">
-              <button class="rch-case-btn" @click="chooseCase(item.key)">
-                <span class="rch-case-title" x-text="item.label"></span>
+              <button class="tl-case-btn" @click="chooseCase(item.key)">
+                <span class="tl-case-title" x-text="item.label"></span>
               </button>
             </template>
           </div>
@@ -111,17 +111,17 @@
           </template>
           <template x-if="showCreateForm">
             <div class="space-y-3 mt-2">
-              <div class="rch-input-group">
-                <label class="rch-input-label">Nachname <span class="text-red-500">*</span></label>
+              <div class="tl-input-group">
+                <label class="tl-input-label">Nachname <span class="text-red-500">*</span></label>
                 <input x-model="newProfile.last_name" type="text" class="field" placeholder="Nachname">
               </div>
               <div class="grid sm:grid-cols-2 gap-3">
-                <div class="rch-input-group">
-                  <label class="rch-input-label">Geburtsdatum</label>
+                <div class="tl-input-group">
+                  <label class="tl-input-label">Geburtsdatum</label>
                   <input x-model="newProfile.birth_date" type="date" class="field">
                 </div>
-                <div class="rch-input-group">
-                  <label class="rch-input-label">Haarfarbe</label>
+                <div class="tl-input-group">
+                  <label class="tl-input-label">Haarfarbe</label>
                   <select x-model="newProfile.hair_color" class="field">
                     <option value="">Bitte waehlen</option>
                     <template x-for="hc in hairColors" :key="hc.value">
@@ -131,17 +131,17 @@
                 </div>
               </div>
               <div class="grid sm:grid-cols-2 gap-3">
-                <div class="rch-input-group">
-                  <label class="rch-input-label">Stadt <span class="text-red-500">*</span></label>
+                <div class="tl-input-group">
+                  <label class="tl-input-label">Stadt <span class="text-red-500">*</span></label>
                   <input x-model="newProfile.city" type="text" class="field" placeholder="Stadt">
                 </div>
-                <div class="rch-input-group">
-                  <label class="rch-input-label">E-Mail</label>
+                <div class="tl-input-group">
+                  <label class="tl-input-label">E-Mail</label>
                   <input x-model="newProfile.email" type="email" class="field" placeholder="person@example.com">
                 </div>
               </div>
-              <div class="rch-input-group">
-                <label class="rch-input-label">Telefon</label>
+              <div class="tl-input-group">
+                <label class="tl-input-label">Telefon</label>
                 <input x-model="newProfile.phone" type="tel" class="field" placeholder="+491761234567">
               </div>
               <div class="flex items-center gap-3 flex-wrap mt-2">
@@ -167,8 +167,8 @@
         </h3>
         <div class="ow-badge-gray">Timer: <strong x-text="stepTimer"></strong>s</div>
       </div>
-      <div class="rch-timer-track mt-3">
-        <div class="rch-timer-fill" :style="`width: ${timerPercent()}%`"></div>
+      <div class="tl-timer-track mt-3">
+        <div class="tl-timer-fill" :style="`width: ${timerPercent()}%`"></div>
       </div>
 
       <div class="mt-4">
@@ -386,7 +386,7 @@ function searchFlow(config) {
       const headers = { 'X-Requested-With': 'XMLHttpRequest', ...extra };
       const csrf = this.csrfToken();
       if (csrf) headers['X-CSRFToken'] = csrf;
-      const gate = localStorage.getItem('rch_js_gate_token');
+      const gate = localStorage.getItem('tl_js_gate_token');
       if (gate) headers['X-JS-Gate'] = gate;
       return headers;
     },
@@ -578,7 +578,7 @@ function creditBuy() {
       const headers = { 'X-Requested-With': 'XMLHttpRequest', ...extra };
       const match = document.cookie.match(/(?:^|; )csrftoken=([^;]+)/);
       if (match) headers['X-CSRFToken'] = decodeURIComponent(match[1]);
-      const gate = localStorage.getItem('rch_js_gate_token');
+      const gate = localStorage.getItem('tl_js_gate_token');
       if (gate) headers['X-JS-Gate'] = gate;
       return headers;
     },
@@ -605,7 +605,7 @@ function relayPanel() {
     const h = { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' };
     const match = document.cookie.match(/(?:^|; )csrftoken=([^;]+)/);
     if (match) h['X-CSRFToken'] = decodeURIComponent(match[1]);
-    const gate = localStorage.getItem('rch_js_gate_token');
+    const gate = localStorage.getItem('tl_js_gate_token');
     if (gate) h['X-JS-Gate'] = gate;
     return h;
   }
