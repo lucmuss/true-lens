@@ -23,6 +23,9 @@ python manage.py collectstatic --noinput
 if [ -n "${DJANGO_SUPERUSER_EMAIL:-}" ] && [ -n "${DJANGO_SUPERUSER_PASSWORD:-}" ]; then
   python - <<'PY'
 import os
+import django
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "app.settings")
+django.setup()
 from django.contrib.auth import get_user_model
 
 User = get_user_model()

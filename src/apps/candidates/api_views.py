@@ -10,7 +10,7 @@ from django.views.decorators.http import require_GET, require_POST
 from apps.security.services import extract_client_ip
 
 from .google_places import GooglePlacesError, autocomplete_cities
-from .location_data import COUNTRIES, REGIONS_BY_COUNTRY
+from .location_data import COUNTRIES, COUNTRY_TO_ISO2, REGIONS_BY_COUNTRY
 from .models import Candidate, LookupSession
 from .services import (
     advance_lookup_session,
@@ -57,10 +57,11 @@ def city_autocomplete(request):
     region = (request.GET.get("region") or "").strip()
     if len(q) < 2:
         return JsonResponse({"suggestions": []})
+    country_code = COUNTRY_TO_ISO2.get(country.lower().strip(), "")
     try:
         suggestions = autocomplete_cities(
             q,
-            country_code="de" if country.lower() in {"de", "germany", "deutschland"} else "",
+            country_code=country_code,
             region=region,
             session_token=(request.GET.get("session_token") or "").strip(),
         )

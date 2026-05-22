@@ -1,0 +1,96 @@
+<div x-data="enrichmentForm({{ candidate_id }})" class="mt-6 border-t pt-5">
+  <div class="flex items-center justify-between gap-3 flex-wrap">
+    <h3 class="ow-card-title">Daten ergaenzen</h3>
+    <button @click="showForm = !showForm" class="btn-secondary text-sm">
+      <span x-text="showForm ? 'Abbrechen' : 'Daten ergaenzen'"></span>
+    </button>
+  </div>
+
+  <template x-if="showForm">
+    <div class="space-y-3 mt-4">
+      <p class="ow-card-sub">Trage fehlende oder aktualisierte Informationen ein. Bei 2+ neuen Feldern gibt es 1 Credit. Aenderungen werden vom Admin geprueft.</p>
+      <div class="grid sm:grid-cols-2 gap-3">
+        <div class="rch-input-group">
+          <label class="rch-input-label">Zweit-E-Mail</label>
+          <input x-model="fields.secondary_email" type="email" class="field" placeholder="weitere@email.com">
+        </div>
+        <div class="rch-input-group">
+          <label class="rch-input-label">Zweit-Telefon</label>
+          <input x-model="fields.secondary_phone" type="tel" class="field" placeholder="+491761234567">
+        </div>
+        <div class="rch-input-group">
+          <label class="rch-input-label">Haarfarbe</label>
+          <select x-model="fields.hair_color" class="field">
+            <option value="">Unveraendert</option>
+            {% for value, label in hair_colors %}
+            <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="rch-input-group">
+          <label class="rch-input-label">Dating-Profil-URL</label>
+          <input x-model="fields.dating_profile_url" type="url" class="field" placeholder="https://tinder.com/...">
+        </div>
+        <div class="rch-input-group">
+          <label class="rch-input-label">Stadt</label>
+          <input x-model="fields.city" type="text" class="field" placeholder="Neue Stadt">
+        </div>
+        <div class="rch-input-group">
+          <label class="rch-input-label">Provinz / Region</label>
+          <input x-model="fields.region" type="text" class="field" placeholder="Neue Region">
+        </div>
+      </div>
+      <div class="flex items-center gap-3 mt-2 flex-wrap">
+        <button @click="submit" class="btn-primary" :disabled="loading || filledCount() < 1">
+          <span x-show="!loading">Einreichen</span>
+          <span x-show="loading">Sende...</span>
+        </button>
+        <span class="text-xs text-slate-500">
+          <span x-text="filledCount()"></span> Felder ausgefuellt
+          <template x-if="filledCount() >= 2">
+            <span class="text-green-600 font-medium"> · +1 Credit</span>
+          </template>
+        </span>
+      </div>
+      <p class="ow-inline-info text-sm" x-text="msg"></p>
+    </div>
+  </template>
+</div>
+
+<script>
+function enrichmentForm(candidateId) {
+  function reqHeaders() {
+    const h = { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' };
+    const m = document.cookie.match(/(?:^|; )csrftoken=([^;]+)/);
+    if (m) h['X-CSRFToken'] = decodeURIComponent(m[1]);
+    const gate = localStorage.getItem('rch_js_gate_token');
+    if (gate) h['X-JS-Gate'] = gate;
+    return h;
+  }
+  return {
+    showForm: false,
+    loading: false,
+    msg: '',
+    fields: { secondary_email: '', secondary_phone: '', hair_color: '', dating_profile_url: '', city: '', region: '' },
+    filledCount() {
+      return Object.values(this.fields).filter(v => String(v).trim().length > 0).length;
+    },
+    async submit() {
+      this.loading = true;
+      this.msg = '';
+      const payload = Object.fromEntries(Object.entries(this.fields).filter(([, v]) => String(v).trim()));
+      const res = await fetch(`/api/candidates/${candidateId}/enrichment`, {
+        method: 'POST',
+        headers: reqHeaders(),
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      this.loading = false;
+      if (!data.ok) { this.msg = data.error || 'Fehler'; return; }
+      this.msg = 'Einreichung gespeichert und wird geprueft.';
+      this.showForm = false;
+      this.fields = { secondary_email: '', secondary_phone: '', hair_color: '', dating_profile_url: '', city: '', region: '' };
+    },
+  };
+}
+</script>

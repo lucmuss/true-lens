@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from .services import create_captcha_challenge, create_js_gate_token, extract_client_ip, verify_captcha_challenge
@@ -17,12 +18,14 @@ def _load_body(request) -> dict:
         return {}
 
 
+@csrf_exempt
 @require_POST
 def captcha_start(request):
     data = create_captcha_challenge()
     return JsonResponse({"ok": True, **data})
 
 
+@csrf_exempt
 @require_POST
 def captcha_verify(request):
     payload = _load_body(request)

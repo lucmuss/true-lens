@@ -18,10 +18,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY pyproject.toml uv.lock /app/
 RUN pip install --no-cache-dir uv && \
     uv venv .venv && \
-    .venv/bin/uv sync --frozen --no-dev --no-install-project
+    uv sync --frozen --no-dev --no-install-project
 
 COPY . /app
-RUN .venv/bin/uv sync --frozen --no-dev
+RUN uv sync --frozen --no-dev
 
 ENV PATH="/app/.venv/bin:${PATH}" \
     PYTHONPATH="/app/src"

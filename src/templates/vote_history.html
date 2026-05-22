@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Vote-Historie · {{ PROJECT_NAME }}{% endblock %}
+{% block body %}
+<div class="ow-shell">
+  <aside class="ow-sidebar">
+    <div class="ow-sidebar-logo">
+      <div class="ow-sidebar-logo-icon">RCH</div>
+      <div>
+        <div class="ow-sidebar-logo-text">Recruiter Hub</div>
+        <div class="ow-sidebar-logo-sub">Secure Lookup</div>
+      </div>
+    </div>
+    <nav class="ow-sidebar-nav">
+      <div class="ow-sidebar-section">Workspace</div>
+      <a href="{% url 'dashboard' %}" class="ow-nav-item">Search</a>
+      <a href="{% url 'vote_history' %}" class="ow-nav-item active">Votes</a>
+      <a href="{% url 'recruiter_settings' %}" class="ow-nav-item">Settings</a>
+      <div class="ow-nav-settings-sep"></div>
+      <a href="{% url 'account_logout' %}" class="ow-nav-item">Logout</a>
+    </nav>
+    <div class="ow-sidebar-user">
+      <div class="ow-user-avatar">{{ user.email|slice:":1"|upper }}</div>
+      <div class="ow-user-name">{{ user.email }}</div>
+    </div>
+  </aside>
+
+  <main class="ow-main">
+    <header class="ow-header">
+      <div>
+        <div class="ow-header-title">Vote-Historie</div>
+        <div class="ow-header-sub">Alle deine Kategoriebewertungen im Ueberblick</div>
+      </div>
+      <div class="ow-header-actions">
+        <a href="{% url 'dashboard' %}" class="btn-secondary">Zum Dashboard</a>
+      </div>
+    </header>
+
+    <div class="ow-content">
+      <div class="panel p-5">
+        {% if page_obj %}
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b text-left text-slate-500">
+              <th class="pb-2 pr-4">Datum</th>
+              <th class="pb-2 pr-4">Kandidat</th>
+              <th class="pb-2 pr-4">Kategorie</th>
+              <th class="pb-2 pr-4">Anonym</th>
+              <th class="pb-2">Ablauf</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y">
+            {% for vote in page_obj %}
+            <tr class="py-2">
+              <td class="py-2 pr-4 text-slate-600">{{ vote.voted_on }}</td>
+              <td class="py-2 pr-4">
+                <a href="{% url 'candidate_profile' vote.candidate.id %}" class="text-blue-600 hover:underline">
+                  {{ vote.candidate.first_name }} {{ vote.candidate.masked_last_name }}
+                </a>
+              </td>
+              <td class="py-2 pr-4">{{ vote.attribute.icon }} {{ vote.attribute.label }}</td>
+              <td class="py-2 pr-4">
+                {% if vote.is_anonymous %}<span class="ow-badge-gray text-xs">Anonym</span>{% else %}–{% endif %}
+              </td>
+              <td class="py-2 text-slate-500 text-xs">
+                {% if vote.expires_on %}bis {{ vote.expires_on }}{% else %}–{% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <div class="flex items-center justify-between mt-5 gap-3 flex-wrap">
+          <p class="text-sm text-slate-500">{{ page_obj.paginator.count }} Votes gesamt</p>
+          <div class="flex gap-2">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" class="btn-secondary text-sm">Vorherige</a>
+            {% endif %}
+            <span class="text-sm text-slate-500 flex items-center">Seite {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="btn-secondary text-sm">Naechste</a>
+            {% endif %}
+          </div>
+        </div>
+        {% else %}
+        <p class="text-slate-500 text-sm">Du hast noch keine Votes abgegeben.</p>
+        {% endif %}
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

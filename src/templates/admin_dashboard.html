@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+{% block title %}Admin-Dashboard · {{ PROJECT_NAME }}{% endblock %}
+{% block body %}
+<div class="ow-shell">
+  <aside class="ow-sidebar">
+    <div class="ow-sidebar-logo">
+      <div class="ow-sidebar-logo-icon">RCH</div>
+      <div>
+        <div class="ow-sidebar-logo-text">Admin</div>
+        <div class="ow-sidebar-logo-sub">Kontrollzentrum</div>
+      </div>
+    </div>
+    <nav class="ow-sidebar-nav">
+      <div class="ow-sidebar-section">Admin</div>
+      <a href="{% url 'admin_dashboard' %}" class="ow-nav-item active">Uebersicht</a>
+      <a href="{% url 'admin:index' %}" class="ow-nav-item">Django Admin</a>
+      <div class="ow-sidebar-section mt-4">Recruiter</div>
+      <a href="{% url 'dashboard' %}" class="ow-nav-item">Zum Dashboard</a>
+      <div class="ow-nav-settings-sep"></div>
+      <a href="{% url 'account_logout' %}" class="ow-nav-item">Logout</a>
+    </nav>
+    <div class="ow-sidebar-user">
+      <div class="ow-user-avatar">{{ user.email|slice:":1"|upper }}</div>
+      <div class="ow-user-name">{{ user.email }}</div>
+    </div>
+  </aside>
+
+  <main class="ow-main">
+    <header class="ow-header">
+      <div>
+        <div class="ow-header-title">Admin-Dashboard</div>
+        <div class="ow-header-sub">Systemuebersicht und Moderation</div>
+      </div>
+    </header>
+
+    <div class="ow-content space-y-5">
+
+      <!-- Statistik-Kacheln -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="panel p-4 text-center">
+          <p class="text-2xl font-bold">{{ stats.candidate_count }}</p>
+          <p class="ow-card-sub text-xs mt-1">Kandidaten</p>
+        </div>
+        <div class="panel p-4 text-center">
+          <p class="text-2xl font-bold">{{ stats.recruiter_count }}</p>
+          <p class="ow-card-sub text-xs mt-1">Recruiter</p>
+        </div>
+        <div class="panel p-4 text-center">
+          <p class="text-2xl font-bold">{{ stats.total_votes }}</p>
+          <p class="ow-card-sub text-xs mt-1">Votes gesamt</p>
+        </div>
+        <div class="panel p-4 text-center">
+          <p class="text-2xl font-bold">{{ stats.total_views }}</p>
+          <p class="ow-card-sub text-xs mt-1">Profil-Aufrufe</p>
+        </div>
+      </div>
+
+      <!-- Finanzen -->
+      <div class="panel p-5">
+        <h2 class="ow-card-title mb-3">Credits &amp; Einnahmen</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+          <div>
+            <p class="text-slate-500">Credits verkauft</p>
+            <p class="text-xl font-semibold">{{ stats.credits_sold }}</p>
+          </div>
+          <div>
+            <p class="text-slate-500">Einnahmen (EUR)</p>
+            <p class="text-xl font-semibold">{{ stats.revenue_eur }}</p>
+          </div>
+          <div>
+            <p class="text-slate-500">Credits im Umlauf</p>
+            <p class="text-xl font-semibold">{{ stats.credits_outstanding }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Replikations-Knoten -->
+      <div class="panel p-5">
+        <h2 class="ow-card-title mb-3">Replikations-Knoten</h2>
+        {% if nodes %}
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b text-left text-slate-500">
+              <th class="pb-2 pr-3">Name</th>
+              <th class="pb-2 pr-3">Rolle</th>
+              <th class="pb-2 pr-3">Status</th>
+              <th class="pb-2 pr-3">Heartbeat</th>
+              <th class="pb-2">Genehmigt</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y">
+            {% for node in nodes %}
+            <tr>
+              <td class="py-2 pr-3 font-medium">{{ node.name }}</td>
+              <td class="py-2 pr-3">{{ node.get_role_display }}</td>
+              <td class="py-2 pr-3">
+                <span class="ow-badge-{% if node.status == 'online' %}blue{% elif node.status == 'degraded' %}warn{% else %}gray{% endif %} text-xs">
+                  {{ node.get_status_display }}
+                </span>
+              </td>
+              <td class="py-2 pr-3 text-slate-500 text-xs">
+                {% if node.heartbeat_at %}{{ node.heartbeat_at|date:"d.m.Y H:i" }}{% else %}–{% endif %}
+              </td>
+              <td class="py-2">
+                {% if node.is_approved %}<span class="text-green-600 text-xs">Ja</span>{% else %}<span class="text-red-500 text-xs">Nein</span>{% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <p class="text-sm text-slate-500">Keine Knoten registriert.</p>
+        {% endif %}
+      </div>
+
+      <!-- Moderation Queue -->
+      <div class="panel p-5">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="ow-card-title">Moderation Queue</h2>
+          <span class="ow-badge-gray text-xs">{{ pending_enrichments.count }} ausstehend</span>
+        </div>
+        {% if pending_enrichments %}
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b text-left text-slate-500">
+              <th class="pb-2 pr-3">Kandidat</th>
+              <th class="pb-2 pr-3">Recruiter</th>
+              <th class="pb-2 pr-3">Felder</th>
+              <th class="pb-2">Eingereicht</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y">
+            {% for sub in pending_enrichments %}
+            <tr>
+              <td class="py-2 pr-3">
+                <a href="{% url 'candidate_profile' sub.candidate.id %}" class="text-blue-600 hover:underline">
+                  {{ sub.candidate.first_name }} {{ sub.candidate.masked_last_name }}
+                </a>
+              </td>
+              <td class="py-2 pr-3 text-slate-600">{{ sub.recruiter.email }}</td>
+              <td class="py-2 pr-3 text-slate-500 text-xs">{{ sub.payload.keys|join:", " }}</td>
+              <td class="py-2 text-slate-500 text-xs">{{ sub.created_at|date:"d.m.Y" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <p class="text-sm text-slate-500">Keine ausstehenden Einreichungen.</p>
+        {% endif %}
+      </div>
+
+      <!-- Neue Knoten-Bewerbungen -->
+      <div class="panel p-5">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="ow-card-title">Supporter-Knoten-Bewerbungen</h2>
+          <span class="ow-badge-gray text-xs">{{ pending_node_apps.count }} ausstehend</span>
+        </div>
+        {% if pending_node_apps %}
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b text-left text-slate-500">
+              <th class="pb-2 pr-3">Name</th>
+              <th class="pb-2 pr-3">E-Mail</th>
+              <th class="pb-2 pr-3">URL</th>
+              <th class="pb-2">Eingereicht</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y">
+            {% for app in pending_node_apps %}
+            <tr>
+              <td class="py-2 pr-3">{{ app.applicant_name }}</td>
+              <td class="py-2 pr-3 text-slate-600">{{ app.applicant_email }}</td>
+              <td class="py-2 pr-3 text-blue-600 text-xs break-all">{{ app.base_url }}</td>
+              <td class="py-2 text-slate-500 text-xs">{{ app.created_at|date:"d.m.Y" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <p class="text-sm text-slate-500">Keine ausstehenden Bewerbungen.</p>
+        {% endif %}
+      </div>
+
+      <!-- IP-Bans -->
+      <div class="panel p-5">
+        <h2 class="ow-card-title mb-3">Aktive IP-Sperren</h2>
+        {% if active_bans %}
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b text-left text-slate-500">
+              <th class="pb-2 pr-3">IP</th>
+              <th class="pb-2 pr-3">Grund</th>
+              <th class="pb-2 pr-3">Strikes</th>
+              <th class="pb-2">Gesperrt bis</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y">
+            {% for ban in active_bans %}
+            <tr>
+              <td class="py-2 pr-3 font-mono text-xs">{{ ban.ip }}</td>
+              <td class="py-2 pr-3 text-slate-600">{{ ban.reason }}</td>
+              <td class="py-2 pr-3">{{ ban.strike_count }}</td>
+              <td class="py-2 text-slate-500 text-xs">{{ ban.banned_until|date:"d.m.Y H:i" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <p class="text-sm text-slate-500">Keine aktiven Sperren.</p>
+        {% endif %}
+      </div>
+
+    </div>
+  </main>
+</div>
+{% endblock %}

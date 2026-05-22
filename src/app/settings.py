@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import dj_database_url
 
 from .env import BASE_DIR, env_bool, env_int, env_list, env_str
@@ -236,6 +237,42 @@ CANDIDATE_ATTRIBUTE_CONFIG_PATH = env_str(
     "CANDIDATE_ATTRIBUTE_CONFIG_PATH",
     str(BASE_DIR / "src" / "apps" / "candidates" / "attribute_defaults.json"),
 )
+
+APP_LOG_LEVEL = env_str("APP_LOG_LEVEL", "DEBUG" if DJANGO_DEBUG else "INFO")
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "simple": {
+            "format": "[{asctime}] {levelname} {name}: {message}",
+            "style": "{",
+        },
+        "verbose": {
+            "format": "[{asctime}] {levelname} {name} pid={process}: {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": APP_LOG_LEVEL,
+    },
+    "loggers": {
+        "django": {"handlers": ["console"], "level": "INFO", "propagate": False},
+        "django.request": {"handlers": ["console"], "level": "WARNING", "propagate": False},
+        "django.security": {"handlers": ["console"], "level": "WARNING", "propagate": False},
+        "apps": {"handlers": ["console"], "level": APP_LOG_LEVEL, "propagate": False},
+        "apps.security": {"handlers": ["console"], "level": "INFO", "propagate": False},
+        "apps.candidates": {"handlers": ["console"], "level": APP_LOG_LEVEL, "propagate": False},
+        "apps.credits": {"handlers": ["console"], "level": "INFO", "propagate": False},
+    },
+}
 
 REPLICATION_ENABLED = env_bool("REPLICATION_ENABLED", True)
 REPLICATION_FACTOR = env_int("REPLICATION_FACTOR", 3)

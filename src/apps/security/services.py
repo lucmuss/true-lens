@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import hashlib
 import hmac
+import logging
 import secrets
 from datetime import timedelta
 
@@ -14,6 +15,8 @@ from django.http import HttpRequest
 from django.utils import timezone
 
 from .models import ApiGateToken, CaptchaChallenge, IPBan, SecurityEvent
+
+logger = logging.getLogger(__name__)
 
 
 def extract_client_ip(request: HttpRequest) -> str:
@@ -161,10 +164,12 @@ def register_security_failure(*, ip: str, reason: str, user=None) -> None:
             user=user if user and getattr(user, "is_authenticated", False) else None,
             payload={"reason": reason, "banned_until": until.isoformat()},
         )
+        logger.warning("ip_banned ip=%s reason=%s strikes=%d", ip, reason, ban.strike_count)
     else:
         ban.reason = reason
         ban.strike_count = ban.strike_count + 1
         ban.save(update_fields=["reason", "strike_count", "updated_at"])
+        logger.info("security_strike ip=%s reason=%s strikes=%d", ip, reason, ban.strike_count)
 
 
 def create_captcha_inline(request: HttpRequest) -> dict[str, str]:

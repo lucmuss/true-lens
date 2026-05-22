@@ -104,7 +104,57 @@
       </template>
 
       <template x-if="candidateCount === 0">
-        <p class="ow-inline-info mt-4">Kein Treffer. Du kannst ein neues Profil anlegen.</p>
+        <div class="mt-4">
+          <p class="ow-inline-info mb-3">Kein Treffer. Lege ein neues Profil an:</p>
+          <template x-if="!showCreateForm">
+            <button @click="showCreateForm = true" class="btn-primary">Neues Profil anlegen</button>
+          </template>
+          <template x-if="showCreateForm">
+            <div class="space-y-3 mt-2">
+              <div class="rch-input-group">
+                <label class="rch-input-label">Nachname <span class="text-red-500">*</span></label>
+                <input x-model="newProfile.last_name" type="text" class="field" placeholder="Nachname">
+              </div>
+              <div class="grid sm:grid-cols-2 gap-3">
+                <div class="rch-input-group">
+                  <label class="rch-input-label">Geburtsdatum</label>
+                  <input x-model="newProfile.birth_date" type="date" class="field">
+                </div>
+                <div class="rch-input-group">
+                  <label class="rch-input-label">Haarfarbe</label>
+                  <select x-model="newProfile.hair_color" class="field">
+                    <option value="">Bitte waehlen</option>
+                    <template x-for="hc in hairColors" :key="hc.value">
+                      <option :value="hc.value" x-text="hc.label"></option>
+                    </template>
+                  </select>
+                </div>
+              </div>
+              <div class="grid sm:grid-cols-2 gap-3">
+                <div class="rch-input-group">
+                  <label class="rch-input-label">Stadt <span class="text-red-500">*</span></label>
+                  <input x-model="newProfile.city" type="text" class="field" placeholder="Stadt">
+                </div>
+                <div class="rch-input-group">
+                  <label class="rch-input-label">E-Mail</label>
+                  <input x-model="newProfile.email" type="email" class="field" placeholder="person@example.com">
+                </div>
+              </div>
+              <div class="rch-input-group">
+                <label class="rch-input-label">Telefon</label>
+                <input x-model="newProfile.phone" type="tel" class="field" placeholder="+491761234567">
+              </div>
+              <div class="flex items-center gap-3 flex-wrap mt-2">
+                <button @click="submitCreateProfile" class="btn-primary" :disabled="!newProfile.last_name || !newProfile.city || loading">
+                  <span x-show="!loading">Profil erstellen</span>
+                  <span x-show="loading">Erstelle...</span>
+                </button>
+                <button @click="showCreateForm = false" class="btn-secondary">Abbrechen</button>
+              </div>
+              <p class="ow-inline-info" x-text="createMessage"></p>
+            </div>
+          </template>
+        </div>
       </template>
     </section>
   </template>
@@ -189,7 +239,7 @@
         <template x-if="profile.vote_breakdown && profile.vote_breakdown.length">
           <div class="grid sm:grid-cols-2 gap-2 mb-3">
             <template x-for="row in profile.vote_breakdown" :key="row.label">
-              <div class="vote-tile">
+              <div :class="'vote-tile' + (row.count >= 5 ? ' vote-strong' : row.count > 2 ? ' vote-mid' : '')">
                 <div class="flex items-center justify-between text-sm">
                   <span><span x-text="row.icon"></span> <span x-text="row.label"></span></span>
                   <span class="font-semibold" x-text="row.count"></span>
@@ -242,6 +292,9 @@ function searchFlow(config) {
     countrySuggestions: [],
     regionSuggestions: [],
     citySuggestions: [],
+    showCreateForm: false,
+    createMessage: '',
+    newProfile: { last_name: '', birth_date: '', hair_color: '', city: '', email: '', phone: '' },
     cases: [
       { key: 'birthdate', label: 'Geburtsdatum + Stadt + Haarfarbe', fields: ['birth_date', 'city', 'hair_color'] },
       { key: 'email', label: 'E-Mail + Stadt', fields: ['email', 'city'] },
@@ -267,6 +320,36 @@ function searchFlow(config) {
     canStart() {
       return Boolean(this.country && this.region && this.first_name && this.gender);
     },
+    async submitCreateProfile() {
+      this.loading = true;
+      this.createMessage = '';
+      const payload = {
+        first_name: this.first_name,
+        last_name: this.newProfile.last_name,
+        gender: this.gender,
+        country: this.country,
+        region: this.region,
+        city: this.newProfile.city,
+        birth_date: this.newProfile.birth_date || undefined,
+        hair_color: this.newProfile.hair_color || undefined,
+        email: this.newProfile.email || undefined,
+        phone: this.newProfile.phone || undefined,
+      };
+      const res = await this.apiFetch('/api/candidates/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      this.loading = false;
+      if (!data.ok) {
+        this.createMessage = data.error || 'Fehler beim Erstellen.';
+        return;
+      }
+      this.createMessage = `Profil erstellt (ID ${data.candidate_id}). ${data.credits_awarded} Credits gutgeschrieben.`;
+      this.showCreateForm = false;
+      this.newProfile = { last_name: '', birth_date: '', hair_color: '', city: '', email: '', phone: '' };
+    },
     resetSearch() {
       clearInterval(this.timerHandle);
       this.loading = false;
@@ -288,6 +371,9 @@ function searchFlow(config) {
       this.selectedAttributes = [];
       this.anonymousVote = false;
       this.citySuggestions = [];
+      this.showCreateForm = false;
+      this.createMessage = '';
+      this.newProfile = { last_name: '', birth_date: '', hair_color: '', city: '', email: '', phone: '' };
       this.loadCountries();
     },
     csrfToken() {
@@ -512,5 +598,31 @@ function creditBuy() {
       }
     },
   }
+}
+
+function relayPanel() {
+  function headers() {
+    const h = { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' };
+    const match = document.cookie.match(/(?:^|; )csrftoken=([^;]+)/);
+    if (match) h['X-CSRFToken'] = decodeURIComponent(match[1]);
+    const gate = localStorage.getItem('rch_js_gate_token');
+    if (gate) h['X-JS-Gate'] = gate;
+    return h;
+  }
+  return {
+    relayMsg: '',
+    async accept(id) {
+      const res = await fetch(`/api/recruiters/contact-request/${id}/accept`, { method: 'POST', headers: headers() });
+      const data = await res.json();
+      this.relayMsg = data.ok ? 'Kontakt freigegeben. Beide Recruiter wurden per E-Mail informiert.' : (data.error || 'Fehler');
+      if (data.ok) setTimeout(() => location.reload(), 2000);
+    },
+    async reject(id) {
+      const res = await fetch(`/api/recruiters/contact-request/${id}/reject`, { method: 'POST', headers: headers() });
+      const data = await res.json();
+      this.relayMsg = data.ok ? 'Anfrage abgelehnt.' : (data.error || 'Fehler');
+      if (data.ok) setTimeout(() => location.reload(), 1500);
+    },
+  };
 }
 </script>

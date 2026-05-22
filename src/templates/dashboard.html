@@ -17,6 +17,10 @@
       <a href="#vote-history" class="ow-nav-item">Votes</a>
       <a href="#quick-billing" class="ow-nav-item">Billing</a>
       <a href="{% url 'recruiter_settings' %}" class="ow-nav-item">Settings</a>
+      {% if user.is_staff %}
+      <div class="ow-sidebar-section mt-4">Admin</div>
+      <a href="{% url 'admin_dashboard' %}" class="ow-nav-item">Admin-Dashboard</a>
+      {% endif %}
       <div class="ow-nav-settings-sep"></div>
       <a href="{% url 'account_logout' %}" class="ow-nav-item">Logout</a>
     </nav>
@@ -59,7 +63,10 @@
           </section>
 
           <section id="vote-history" class="ow-card ow-compact-card">
-            <h2 class="ow-card-title">Letzte Votes</h2>
+            <div class="flex items-center justify-between">
+              <h2 class="ow-card-title">Letzte Votes</h2>
+              <a href="{% url 'vote_history' %}" class="text-xs text-blue-600 hover:underline">Alle anzeigen</a>
+            </div>
             <ul class="ow-activity-list">
               {% for vote in recent_votes %}
               <li>
@@ -72,6 +79,38 @@
               {% endfor %}
             </ul>
           </section>
+
+          {% if pending_relays_incoming or pending_relays_outgoing %}
+          <section id="contact-relays" class="ow-card ow-compact-card" x-data="relayPanel()">
+            <h2 class="ow-card-title">Kontaktanfragen</h2>
+
+            {% if pending_relays_incoming %}
+            <p class="ow-card-sub mt-1">Eingehend (du bist Zielperson):</p>
+            <ul class="ow-activity-list mt-2">
+              {% for relay in pending_relays_incoming %}
+              <li class="flex items-center justify-between gap-2 flex-wrap py-1">
+                <span class="text-sm">Von <strong>{{ relay.initiator.email }}</strong> · Kandidat #{{ relay.candidate_id }}</span>
+                <div class="flex gap-2">
+                  <button @click="accept({{ relay.id }})" class="btn-primary text-xs py-1 px-2">Annehmen</button>
+                  <button @click="reject({{ relay.id }})" class="btn-secondary text-xs py-1 px-2">Ablehnen</button>
+                </div>
+              </li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+
+            {% if pending_relays_outgoing %}
+            <p class="ow-card-sub mt-3">Ausgehend (du hast angefragt):</p>
+            <ul class="ow-activity-list mt-2">
+              {% for relay in pending_relays_outgoing %}
+              <li class="text-sm py-1">An <strong>{{ relay.target.email }}</strong> · Kandidat #{{ relay.candidate_id }} · <em>ausstehend</em></li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+
+            <p class="ow-inline-info mt-2 text-xs" x-text="relayMsg"></p>
+          </section>
+          {% endif %}
 
           <section id="quick-billing" class="ow-card ow-compact-card" x-data="creditBuy()">
             <h2 class="ow-card-title">Credits aufladen</h2>

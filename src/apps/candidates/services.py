@@ -1,15 +1,19 @@
 from __future__ import annotations
 
 import json
+import logging
 from datetime import timedelta
 from pathlib import Path
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 from django.conf import settings
 from django.core.mail import send_mail
 from django.db import models, transaction
 from django.utils import timezone
 
+from apps.accounts.models import RecruiterContactRelay, RecruiterUser
 from apps.credits.models import CreditLedgerEntry
 from apps.moderation.models import DataEnrichmentSubmission
 from apps.security.services import register_security_failure
@@ -86,7 +90,7 @@ def _candidate_filter_for_case(case_type: str, candidates, value: Any):
             age = int(value)
         except (TypeError, ValueError):
             return candidates.none()
-        return candidates.filter(models.Q(age_years=age) | models.Q(birth_date__isnull=False))
+        return _age_filter(candidates, str(age))
     if case_type == "social":
         url = (value or "").strip()
         platform = detect_social_platform(url)
@@ -124,7 +128,19 @@ def _age_filter(candidates, value: str):
         age = int(value)
     except (TypeError, ValueError):
         return candidates.none()
-    return candidates.filter(age_years=age)
+    from django.utils import timezone
+
+    today = timezone.localdate()
+    # Someone who is `age` today was born in one of two possible years:
+    # - today.year - age, if their birthday has already passed this year
+    # - today.year - age - 1, if their birthday has not yet passed
+    # We include both birth years and let subsequent steps narrow further.
+    birth_year_if_passed = today.year - age
+    birth_year_if_not_yet = today.year - age - 1
+    return candidates.filter(
+        models.Q(age_years=age)
+        | models.Q(birth_date__year__in=[birth_year_if_passed, birth_year_if_not_yet])
+    ).distinct()
 
 
 def _record_attempt(session: LookupSession, *, step: int, ip: str, success: bool, reason: str = "") -> None:
@@ -182,6 +198,13 @@ def create_lookup_session(*, payload: dict, user, ip: str) -> tuple[bool, dict]:
         candidate_ids=candidate_ids,
         step_expires_at=timezone.now() + timedelta(seconds=settings.SEARCH_STEP_TIMEOUT_SECONDS),
         requires_credit=(reason == "credit"),
+    )
+    logger.info(
+        "lookup_session_created session=%s ip=%s candidates=%d user=%s",
+        session.token,
+        ip,
+        len(candidate_ids),
+        getattr(user, "email", "anon"),
     )
 
     if user and user.is_authenticated:
@@ -290,6 +313,7 @@ def advance_lookup_session(*, token: str, payload: dict, ip: str) -> tuple[bool,
             ]
         )
         _record_attempt(session, step=step, ip=ip, success=True, reason="resolved")
+        logger.info("lookup_resolved session=%s candidate=%d ip=%s", session.token, candidate.id, ip)
         return True, {"resolved": True, "candidate_id": candidate.id, "profile_token": session.token.hex}
 
     session.step_expires_at = timezone.now() + timedelta(seconds=settings.SEARCH_STEP_TIMEOUT_SECONDS)
@@ -377,10 +401,12 @@ def cast_votes(*, candidate_id: int, recruiter, attribute_codes: list[int], anon
     if len(attrs) != len(set(attribute_codes)):
         return False, {"error": "Invalid attribute selection"}
 
-    prior_recruiters = list(
-        CandidateAttributeVote.objects.filter(candidate=candidate, recruiter__isnull=False)
-        .exclude(recruiter=recruiter)
-        .values_list("recruiter__email", "recruiter__notify_on_vote_overlap")
+    prior_recruiter_users = list(
+        RecruiterUser.objects.filter(
+            candidate_votes__candidate=candidate,
+            is_active=True,
+        )
+        .exclude(id=recruiter.id)
         .distinct()
     )
 
@@ -409,21 +435,36 @@ def cast_votes(*, candidate_id: int, recruiter, attribute_codes: list[int], anon
     )
     candidate.save(update_fields=["distinct_recruiter_count", "updated_at"])
 
-    for email, notify_enabled in prior_recruiters:
-        if not email or not notify_enabled:
+    candidate_display = f"{candidate.first_name} {candidate.masked_last_name}"
+    for prior_user in prior_recruiter_users:
+        if not prior_user.notify_on_vote_overlap:
             continue
-        candidate_display = f"{candidate.first_name} {candidate.masked_last_name}"
+        relay = RecruiterContactRelay.objects.create(
+            initiator=prior_user,
+            target=recruiter,
+            candidate_id=candidate.id,
+        )
+        dashboard_url = f"{settings.APP_PUBLIC_URL}/dashboard/"
         send_mail(
             subject=f"{settings.PROJECT_NAME}: Neue Bewertung zu gemeinsamem Profil",
             message=(
-                f"Ein weiterer Recruiter hat das Profil von {candidate_display} bewertet.\n"
-                "Wenn du Kontakt aufnehmen willst, nutze den sicheren Relay-Flow im Dashboard."
+                f"Ein weiterer Recruiter hat das Profil von {candidate_display} bewertet.\n\n"
+                f"Wenn du Kontakt aufnehmen moechtest, gehe in dein Dashboard:\n{dashboard_url}\n\n"
+                f"Dort findest du unter 'Kontaktanfragen' einen neuen Eintrag (ID {relay.id}), "
+                "den du annehmen oder ablehnen kannst."
             ),
             from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[email],
+            recipient_list=[prior_user.email],
             fail_silently=True,
         )
 
+    logger.info(
+        "votes_cast candidate=%d recruiter=%s attrs=%s anonymous=%s",
+        candidate.id,
+        getattr(recruiter, "email", "?"),
+        [a.code for a in attrs],
+        anonymous,
+    )
     return True, {"ok": True, "candidate_id": candidate.id, "vote_count": len(attrs), "credits_awarded": 1}
 
 
