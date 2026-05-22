@@ -1,0 +1,8 @@
+Sicherheitsmeldung: Erfolgreicher Login
+
+Zeit: {{ occurred_at }}
+IP: {{ ip }}
+Geraet: {{ user_agent }}
+
+Dashboard: {{ dashboard_url }}
+Passwort aendern: {{ password_url }}

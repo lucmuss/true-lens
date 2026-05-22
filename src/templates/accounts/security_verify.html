@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Sicherheitsverifikation{% endblock %}
+{% block body %}
+<div class="max-w-xl mx-auto p-6">
+  <div class="panel p-6">
+    <h1 class="text-xl font-semibold">Sicherheitsverifikation</h1>
+    <p class="text-sm text-slate-600 mt-2">Bitte loese das Captcha und gib den 6-stelligen Code aus deiner E-Mail ein.</p>
+
+    {% if messages %}
+    <ul class="mt-4 space-y-2">
+      {% for msg in messages %}
+      <li class="text-sm text-slate-700">{{ msg }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    <form method="post" class="mt-6 space-y-4">
+      {% csrf_token %}
+      <input type="hidden" name="captcha_id" value="{{ captcha_data.captcha_id }}">
+      <div>
+        <label class="block text-sm font-medium">Captcha</label>
+        <img src="{{ captcha_data.image_b64 }}" alt="Captcha" class="mt-2 rounded border border-slate-300">
+      </div>
+      <div>
+        <label class="block text-sm font-medium">Captcha Antwort</label>
+        <input type="text" name="captcha_answer" class="field mt-1" required>
+      </div>
+      <div>
+        <label class="block text-sm font-medium">6-stelliger Sicherheitscode</label>
+        <input type="text" name="code" maxlength="6" class="field mt-1" required>
+      </div>
+      <button class="btn-primary w-full">Verifikation abschliessen</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,395 @@
+<div class="space-y-6" x-data="searchFlow({ stepTimeout: {{ SEARCH_STEP_TIMEOUT_SECONDS }}, attributes: [
+  {% for attr in attributes %}{ code: {{ attr.code }}, label: '{{ attr.label|escapejs }}', icon: '{{ attr.icon|escapejs }}' },{% endfor %}
+], hairColors: [
+  {% for value,label in hair_colors %}{ value: '{{ value }}', label: '{{ label|escapejs }}' },{% endfor %}
+] })" x-init="init()">
+  <div>
+    <h3 class="text-lg font-semibold">Kandidatensuche</h3>
+    <p class="text-sm text-slate-600">Reihenfolge: Land -> Provinz -> Vorname -> Geschlecht.</p>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-4">
+    <div>
+      <label class="text-sm font-medium">Land</label>
+      <input x-model="country" @input.debounce.250ms="loadCountries" list="country-list" class="field mt-1" placeholder="z.B. Germany">
+      <datalist id="country-list">
+        <template x-for="item in countrySuggestions" :key="item.value">
+          <option :value="item.value" x-text="item.label"></option>
+        </template>
+      </datalist>
+    </div>
+    <div>
+      <label class="text-sm font-medium">Provinz/Bundesland</label>
+      <input x-model="region" @input.debounce.250ms="loadRegions" list="region-list" class="field mt-1" :disabled="!country" placeholder="z.B. Sachsen">
+      <datalist id="region-list">
+        <template x-for="item in regionSuggestions" :key="item.value">
+          <option :value="item.value" x-text="item.label"></option>
+        </template>
+      </datalist>
+    </div>
+    <div>
+      <label class="text-sm font-medium">Vorname</label>
+      <input x-model="first_name" class="field mt-1 field-lg" :disabled="!region" placeholder="z.B. Clara">
+    </div>
+    <div>
+      <label class="text-sm font-medium">Geschlecht</label>
+      <select x-model="gender" class="field mt-1" :disabled="!first_name">
+        <option value="">Bitte waehlen</option>
+        <option value="female">Weiblich</option>
+        <option value="male">Maennlich</option>
+        <option value="diverse">Divers</option>
+      </select>
+    </div>
+  </div>
+
+  <button @click="startSearch" class="btn-primary" :disabled="!country || !region || !first_name || !gender || loading">Treffer pruefen</button>
+
+  <div class="text-sm text-slate-700" x-text="message"></div>
+
+  <template x-if="candidateCount !== null">
+    <div class="panel p-4">
+      <p class="text-sm">Trefferanzahl: <strong x-text="candidateCount"></strong></p>
+      <template x-if="candidateCount > 0">
+        <div class="mt-4">
+          <p class="text-sm text-slate-600">Waehle deinen zweiten Schritt:</p>
+          <div class="grid sm:grid-cols-2 gap-2 mt-3">
+            <template x-for="item in cases" :key="item.key">
+              <button class="btn-secondary text-left" @click="chooseCase(item.key)">
+                <span class="font-medium" x-text="item.label"></span>
+              </button>
+            </template>
+          </div>
+        </div>
+      </template>
+      <template x-if="candidateCount === 0">
+        <p class="mt-3 text-sm text-slate-600">Kein Treffer. Du kannst ein neues Profil anlegen (Create-Flow folgt in API-Ausbau).</p>
+      </template>
+    </div>
+  </template>
+
+  <template x-if="selectedCase">
+    <div class="panel p-4 space-y-4">
+      <div class="flex items-center justify-between">
+        <h4 class="font-semibold">Schritt <span x-text="currentStepNumber"></span>: <span x-text="currentFieldLabel()"></span></h4>
+        <div class="text-sm text-slate-600">Timeout: <span class="font-semibold" x-text="stepTimer"></span>s</div>
+      </div>
+
+      <template x-if="currentField === 'birth_date'">
+        <input x-model="stepValue" type="date" class="field">
+      </template>
+
+      <template x-if="currentField === 'email'">
+        <input x-model="stepValue" type="email" class="field" placeholder="person@example.com">
+      </template>
+
+      <template x-if="currentField === 'phone'">
+        <input x-model="stepValue" type="tel" class="field" placeholder="+491761234567">
+      </template>
+
+      <template x-if="currentField === 'age'">
+        <input x-model="stepValue" type="number" min="18" max="120" class="field" placeholder="36">
+      </template>
+
+      <template x-if="currentField === 'social_url'">
+        <input x-model="stepValue" type="url" class="field" placeholder="https://bumble.com/...">
+      </template>
+
+      <template x-if="currentField === 'last_name'">
+        <input x-model="stepValue" type="text" class="field" placeholder="Nachname">
+      </template>
+
+      <template x-if="currentField === 'hair_color'">
+        <select x-model="stepValue" class="field">
+          <option value="">Bitte waehlen</option>
+          <template x-for="hc in hairColors" :key="hc.value">
+            <option :value="hc.value" x-text="hc.label"></option>
+          </template>
+        </select>
+      </template>
+
+      <template x-if="currentField === 'city'">
+        <div>
+          <input x-model="stepValue" @input.debounce.250ms="loadCities" list="city-list" class="field" placeholder="Stadt">
+          <datalist id="city-list">
+            <template x-for="item in citySuggestions" :key="item.value + item.place_id">
+              <option :value="item.value" x-text="item.label"></option>
+            </template>
+          </datalist>
+        </div>
+      </template>
+
+      <button @click="submitStep" class="btn-primary" :disabled="loading || !stepValue">Weiter</button>
+      <p class="text-sm text-slate-600" x-text="stepMessage"></p>
+    </div>
+  </template>
+
+  <template x-if="profile">
+    <div class="panel p-6 space-y-4">
+      <h3 class="text-xl font-semibold">Profil gefunden</h3>
+      <p><strong x-text="profile.first_name"></strong> <span x-text="profile.masked_last_name"></span></p>
+      <p class="text-sm text-slate-600">Alter: <span x-text="profile.age"></span> · Geschlecht: <span x-text="profile.gender"></span> · Haarfarbe: <span x-text="profile.hair_color"></span></p>
+      <p class="text-sm text-slate-600">Email: <span x-text="profile.masked_email"></span> · Telefon: <span x-text="profile.masked_phone"></span></p>
+      <p class="text-sm text-slate-500">Aufrufe: <span x-text="profile.profile_views_count"></span> · Bewerter: <span x-text="profile.distinct_recruiter_count"></span></p>
+
+      <div>
+        <h4 class="font-semibold mb-2">Kategorien voten (max. 3)</h4>
+        <template x-if="profile.vote_breakdown && profile.vote_breakdown.length">
+          <div class="grid sm:grid-cols-2 gap-2 mb-3">
+            <template x-for="row in profile.vote_breakdown" :key="row.label">
+              <div class="vote-tile">
+                <div class="flex items-center justify-between text-sm">
+                  <span><span x-text="row.icon"></span> <span x-text="row.label"></span></span>
+                  <span class="font-semibold" x-text="row.count"></span>
+                </div>
+              </div>
+            </template>
+          </div>
+        </template>
+        <div class="grid sm:grid-cols-2 gap-2">
+          <template x-for="attr in attributes" :key="attr.code">
+            <label class="border rounded p-2 flex items-center gap-2 text-sm">
+              <input type="checkbox" :value="attr.code" x-model="selectedAttributes">
+              <span x-text="attr.icon"></span>
+              <span x-text="attr.label"></span>
+            </label>
+          </template>
+        </div>
+        <label class="flex items-center gap-2 mt-3 text-sm"><input type="checkbox" x-model="anonymousVote"> Anonym voten</label>
+        <button @click="submitVote" class="btn-primary mt-3" :disabled="selectedAttributes.length === 0 || selectedAttributes.length > 3">Vote absenden</button>
+      </div>
+    </div>
+  </template>
+
+  <div class="panel p-4" x-data="creditBuy()">
+    <h4 class="font-semibold">Credits aufladen</h4>
+    <p class="text-sm text-slate-600">1 Credit = 1 EUR (konfigurierbar).</p>
+    <div class="mt-3 inline-flex items-center gap-2">
+      <button class="btn-secondary" @click="dec">-</button>
+      <span class="w-10 text-center font-semibold" x-text="qty"></span>
+      <button class="btn-secondary" @click="inc">+</button>
+      <button class="btn-primary" @click="buy">Kaufen</button>
+    </div>
+    <p class="text-xs text-slate-500 mt-2" x-text="msg"></p>
+  </div>
+</div>
+
+<script>
+function searchFlow(config) {
+  return {
+    loading: false,
+    message: '',
+    country: '',
+    region: '',
+    first_name: '',
+    gender: '',
+    candidateCount: null,
+    sessionToken: '',
+    selectedCase: '',
+    caseIndex: 0,
+    currentField: '',
+    stepValue: '',
+    currentStepNumber: 2,
+    stepMessage: '',
+    stepTimer: config.stepTimeout,
+    timerHandle: null,
+    profile: null,
+    selectedAttributes: [],
+    anonymousVote: false,
+    attributes: config.attributes,
+    hairColors: config.hairColors,
+    countrySuggestions: [],
+    regionSuggestions: [],
+    citySuggestions: [],
+    cases: [
+      { key: 'birthdate', label: 'Geburtsdatum -> Stadt -> Haarfarbe', fields: ['birth_date', 'city', 'hair_color'] },
+      { key: 'email', label: 'E-Mail -> Stadt', fields: ['email', 'city'] },
+      { key: 'phone', label: 'Telefon -> Stadt', fields: ['phone', 'city'] },
+      { key: 'age', label: 'Alter -> Stadt', fields: ['age', 'city'] },
+      { key: 'social', label: 'Dating-Link -> Stadt -> Alter', fields: ['social_url', 'city', 'age'] },
+      { key: 'lastname', label: 'Nachname -> Stadt', fields: ['last_name', 'city'] },
+    ],
+    init() {
+      this.loadCountries();
+    },
+    resetTimer() {
+      clearInterval(this.timerHandle);
+      this.stepTimer = config.stepTimeout;
+      this.timerHandle = setInterval(() => {
+        this.stepTimer -= 1;
+        if (this.stepTimer <= 0) {
+          clearInterval(this.timerHandle);
+          this.stepMessage = 'Step-Timeout erreicht. Bitte Suche neu starten.';
+          this.selectedCase = '';
+        }
+      }, 1000);
+    },
+    async loadCountries() {
+      const res = await fetch(`/api/search/countries?q=${encodeURIComponent(this.country || '')}`);
+      const data = await res.json();
+      this.countrySuggestions = data.suggestions || [];
+    },
+    async loadRegions() {
+      if (!this.country) return;
+      const res = await fetch(`/api/search/regions?country=${encodeURIComponent(this.country)}&q=${encodeURIComponent(this.region || '')}`);
+      const data = await res.json();
+      this.regionSuggestions = data.suggestions || [];
+    },
+    async loadCities() {
+      if (!this.country || !this.region || !this.stepValue || this.stepValue.length < 2) return;
+      const params = new URLSearchParams({ q: this.stepValue, country: this.country, region: this.region });
+      const res = await fetch(`/api/search/cities?${params.toString()}`);
+      const data = await res.json();
+      this.citySuggestions = data.suggestions || [];
+    },
+    async startSearch() {
+      this.loading = true;
+      this.message = '';
+      this.profile = null;
+      const res = await fetch('/api/search/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify({
+          country: this.country,
+          region: this.region,
+          first_name: this.first_name,
+          gender: this.gender,
+        }),
+      });
+      const data = await res.json();
+      this.loading = false;
+      if (!data.ok) {
+        this.message = data.error || 'Suche fehlgeschlagen';
+        return;
+      }
+      this.sessionToken = data.session_token;
+      this.candidateCount = data.candidate_count;
+      this.message = data.message || '';
+    },
+    chooseCase(key) {
+      this.selectedCase = key;
+      this.caseIndex = 0;
+      this.currentStepNumber = 2;
+      this.currentField = this.caseByKey().fields[this.caseIndex];
+      this.stepValue = '';
+      this.stepMessage = '';
+      this.resetTimer();
+    },
+    caseByKey() {
+      return this.cases.find(c => c.key === this.selectedCase);
+    },
+    currentFieldLabel() {
+      const labels = {
+        birth_date: 'Geburtsdatum',
+        email: 'E-Mail',
+        phone: 'Telefon',
+        age: 'Alter',
+        social_url: 'Dating-Profil-URL',
+        last_name: 'Nachname',
+        city: 'Stadt',
+        hair_color: 'Haarfarbe',
+      };
+      return labels[this.currentField] || this.currentField;
+    },
+    async submitStep() {
+      if (!this.sessionToken || !this.selectedCase || !this.currentField) return;
+      this.loading = true;
+      const payload = {
+        session_token: this.sessionToken,
+        case_type: this.selectedCase,
+      };
+      payload[this.currentField] = this.stepValue;
+      const res = await fetch(`/api/search/step/${this.currentStepNumber}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      this.loading = false;
+      if (!data.ok) {
+        this.stepMessage = data.error || 'Schritt fehlgeschlagen';
+        return;
+      }
+
+      if (data.resolved) {
+        clearInterval(this.timerHandle);
+        this.stepMessage = 'Profil erfolgreich verifiziert.';
+        await this.loadProfile();
+        return;
+      }
+
+      this.caseIndex += 1;
+      this.currentStepNumber += 1;
+      this.currentField = this.caseByKey().fields[this.caseIndex];
+      this.stepValue = '';
+      this.stepMessage = `Noch ${data.remaining_candidates} moegliche Treffer.`;
+      this.resetTimer();
+    },
+    async loadProfile() {
+      const res = await fetch(`/api/search/session/${this.sessionToken}/profile`);
+      const data = await res.json();
+      if (!data.ok) {
+        this.stepMessage = data.error || 'Profil konnte nicht geladen werden';
+        return;
+      }
+      this.profile = data;
+      await this.refreshVotes();
+    },
+    async refreshVotes() {
+      if (!this.profile) return;
+      const res = await fetch(`/api/candidates/${this.profile.id}/votes`);
+      const data = await res.json();
+      if (data.ok) {
+        this.profile.vote_breakdown = data.votes;
+      }
+    },
+    async submitVote() {
+      if (!this.profile) return;
+      if (this.selectedAttributes.length > 3) {
+        this.stepMessage = 'Maximal 3 Kategorien erlaubt.';
+        return;
+      }
+      const res = await fetch(`/api/candidates/${this.profile.id}/vote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify({
+          attribute_codes: this.selectedAttributes,
+          anonymous: this.anonymousVote,
+        }),
+      });
+      const data = await res.json();
+      if (!data.ok) {
+        this.stepMessage = data.error || 'Vote fehlgeschlagen.';
+        return;
+      }
+      this.stepMessage = 'Vote gespeichert.';
+      this.selectedAttributes = [];
+      this.anonymousVote = false;
+      await this.refreshVotes();
+    },
+  }
+}
+
+function creditBuy() {
+  return {
+    qty: 1,
+    msg: '',
+    inc() { if (this.qty < 100) this.qty += 1; },
+    dec() { if (this.qty > 1) this.qty -= 1; },
+    async buy() {
+      const res = await fetch('/api/credits/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify({ quantity: this.qty }),
+      });
+      const data = await res.json();
+      if (!data.ok) {
+        this.msg = data.error || 'Checkout fehlgeschlagen';
+        return;
+      }
+      if (data.checkout_url) {
+        window.location.href = data.checkout_url;
+      }
+    },
+  }
+}
+</script>

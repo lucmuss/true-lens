@@ -1,0 +1,7 @@
+services:
+  web:
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-recruiter_candidate_hub}:${POSTGRES_PASSWORD:-recruiter_candidate_hub}@db:5432/${POSTGRES_DB:-recruiter_candidate_hub}
+    depends_on:
+      db:
+        condition: service_healthy

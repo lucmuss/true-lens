@@ -1,0 +1,6 @@
+[
+  {"code": 1, "slug": "zuverlaessig", "label": "Zuverlaessig", "icon": "✅"},
+  {"code": 2, "slug": "introvertiert", "label": "Introvertiert", "icon": "🧠"},
+  {"code": 3, "slug": "extrovertiert", "label": "Extrovertiert", "icon": "⚡"},
+  {"code": 4, "slug": "klug", "label": "Klug", "icon": "🎓"}
+]

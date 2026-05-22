@@ -1,0 +1,124 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+:root {
+  --bg: #f3f4f6;
+  --panel: #ffffff;
+  --ink: #111827;
+  --muted: #6b7280;
+  --line: rgba(0, 0, 0, 0.09);
+  --accent: #111827;
+  --accent-soft: #374151;
+  --ok-soft: #e5f4e8;
+  --ok-mid: #cde8d3;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+[x-cloak] { display: none !important; }
+
+.app-bg {
+  background: radial-gradient(circle at top right, #f8fafc 0%, #eef2f7 40%, var(--bg) 100%);
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+.logo-chip {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--accent);
+  color: white;
+  font-weight: 700;
+}
+
+.stat-tile {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #f8fafc;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.field {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: #111827;
+  background: #fff;
+}
+
+.field-lg {
+  min-height: 52px;
+  font-size: 1.05rem;
+}
+
+.field:focus {
+  outline: none;
+  border-color: #111827;
+  box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08);
+}
+
+.btn-primary,
+.btn-secondary {
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 600;
+  font-size: 0.92rem;
+  border: 1px solid transparent;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--accent-soft);
+}
+
+.btn-secondary {
+  background: #fff;
+  border-color: #d1d5db;
+  color: #111827;
+}
+
+.vote-tile {
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 10px;
+  background: #f8fafc;
+}
+
+.vote-mid {
+  background: var(--ok-soft);
+  border-color: #9dc9a8;
+}
+
+.vote-strong {
+  background: var(--ok-mid);
+  border-color: #5ea86e;
+}

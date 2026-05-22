@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Secure Lookup · {{ PROJECT_NAME }}{% endblock %}
+{% block body %}
+<div class="min-h-screen flex items-center justify-center p-6">
+  <div class="w-full max-w-4xl grid md:grid-cols-2 gap-6">
+    <section class="panel p-8">
+      <div class="mb-6">
+        <div class="logo-chip">RCH</div>
+        <h1 class="mt-4 text-3xl font-semibold tracking-tight">Recruiter Candidate Hub</h1>
+        <p class="mt-3 text-slate-600">Schnelle, sichere Profilsuche mit mehrstufiger Verifikation und Missbrauchsschutz.</p>
+      </div>
+      <div class="grid grid-cols-2 gap-3 text-sm">
+        <div class="stat-tile"><span class="stat-label">Profile im System</span><span class="stat-value">{{ candidate_count }}</span></div>
+        <div class="stat-tile"><span class="stat-label">Gesamtaufrufe</span><span class="stat-value">{{ profile_views }}</span></div>
+      </div>
+    </section>
+
+    <section class="panel p-8" id="captcha-panel" x-data="captchaFlow()" x-init="init()">
+      <h2 class="text-xl font-semibold">Sicherheitsprüfung</h2>
+      <p class="text-sm text-slate-600 mt-2">Erst nach erfolgreicher Captcha-Pruefung wird die Suchmaske freigeschaltet.</p>
+
+      <template x-if="captchaImage">
+        <img :src="captchaImage" alt="Captcha" class="mt-4 rounded border border-slate-300">
+      </template>
+
+      <label class="mt-4 block text-sm font-medium">Captcha Code</label>
+      <input x-model="code" type="text" class="field mt-1" placeholder="Code eingeben">
+      <button @click="verify()" class="btn-primary mt-4 w-full">Pruefung starten</button>
+      <p class="text-xs text-slate-500 mt-2" x-text="message"></p>
+
+      <div class="mt-6 border-t pt-6" x-show="verified" x-cloak>
+        <h3 class="font-semibold">Suche starten</h3>
+        <p class="text-sm text-slate-600 mt-1">Die schnelle Mehrschritt-Suche ist jetzt aktiv.</p>
+        <a href="{% url 'dashboard' %}" class="btn-secondary mt-4 inline-flex">Zum Dashboard</a>
+      </div>
+    </section>
+  </div>
+</div>
+<script>
+  function captchaFlow() {
+    return {
+      captchaId: "",
+      captchaImage: "",
+      code: "",
+      message: "",
+      verified: false,
+      async init() {
+        const res = await fetch('/api/security/captcha/start', {method: 'POST', headers: {'X-Requested-With': 'XMLHttpRequest'}});
+        const data = await res.json();
+        this.captchaId = data.captcha_id;
+        this.captchaImage = data.image_b64;
+      },
+      async verify() {
+        const res = await fetch('/api/security/captcha/verify', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest'},
+          body: JSON.stringify({captcha_id: this.captchaId, code: this.code}),
+        });
+        const data = await res.json();
+        if (data.ok) {
+          this.verified = true;
+          this.message = 'Captcha erfolgreich.';
+          if (data.js_gate_token) {
+            localStorage.setItem('rch_js_gate_token', data.js_gate_token);
+          }
+        } else {
+          this.message = data.error || 'Pruefung fehlgeschlagen.';
+        }
+      },
+    };
+  }
+</script>
+{% endblock %}

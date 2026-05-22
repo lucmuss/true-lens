@@ -1,0 +1,10 @@
+Hallo,
+
+hier ist dein Sicherheitscode fuer {{ project_name }}:
+
+{{ code }}
+
+Verifikationsseite:
+{{ verify_url }}
+
+Der Code ist {{ expires_minutes }} Minuten gueltig.
