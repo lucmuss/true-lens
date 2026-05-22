@@ -1,130 +1,168 @@
-<div class="space-y-6" x-data="searchFlow({ stepTimeout: {{ SEARCH_STEP_TIMEOUT_SECONDS }}, attributes: [
+<div class="rch-flow space-y-6" x-data="searchFlow({ stepTimeout: {{ SEARCH_STEP_TIMEOUT_SECONDS }}, attributes: [
   {% for attr in attributes %}{ code: {{ attr.code }}, label: '{{ attr.label|escapejs }}', icon: '{{ attr.icon|escapejs }}' },{% endfor %}
 ], hairColors: [
   {% for value,label in hair_colors %}{ value: '{{ value }}', label: '{{ label|escapejs }}' },{% endfor %}
 ] })" x-init="init()">
-  <div>
-    <h3 class="text-lg font-semibold">Kandidatensuche</h3>
-    <p class="text-sm text-slate-600">Reihenfolge: Land -> Provinz -> Vorname -> Geschlecht.</p>
-  </div>
+  <section class="rch-logo-row" aria-label="Logo Bereich">
+    <button type="button" class="rch-arrow-btn" aria-label="Vorheriger Bereich">&lt;</button>
+    <div class="rch-logo-pill">
+      <div class="rch-logo-mark">LOGO</div>
+    </div>
+    <button type="button" class="rch-arrow-btn" aria-label="Naechster Bereich">&gt;</button>
+  </section>
 
-  <div class="grid md:grid-cols-2 gap-4">
-    <div>
-      <label class="text-sm font-medium">Land</label>
-      <input x-model="country" @input.debounce.250ms="loadCountries" list="country-list" class="field mt-1" placeholder="z.B. Germany">
-      <datalist id="country-list">
-        <template x-for="item in countrySuggestions" :key="item.value">
-          <option :value="item.value" x-text="item.label"></option>
-        </template>
-      </datalist>
-    </div>
-    <div>
-      <label class="text-sm font-medium">Provinz/Bundesland</label>
-      <input x-model="region" @input.debounce.250ms="loadRegions" list="region-list" class="field mt-1" :disabled="!country" placeholder="z.B. Sachsen">
-      <datalist id="region-list">
-        <template x-for="item in regionSuggestions" :key="item.value">
-          <option :value="item.value" x-text="item.label"></option>
-        </template>
-      </datalist>
-    </div>
-    <div>
-      <label class="text-sm font-medium">Vorname</label>
-      <input x-model="first_name" class="field mt-1 field-lg" :disabled="!region" placeholder="z.B. Clara">
-    </div>
-    <div>
-      <label class="text-sm font-medium">Geschlecht</label>
-      <select x-model="gender" class="field mt-1" :disabled="!first_name">
-        <option value="">Bitte waehlen</option>
-        <option value="female">Weiblich</option>
-        <option value="male">Maennlich</option>
-        <option value="diverse">Divers</option>
-      </select>
-    </div>
-  </div>
+  <section class="rch-step-card">
+    <div class="rch-step-tag">Schritt 1</div>
+    <div class="rch-search-grid">
+      <div class="rch-input-group">
+        <label class="rch-input-label">Country</label>
+        <div class="rch-field-with-icon">
+          <span class="rch-field-icon">⌄</span>
+          <input x-model="country" @input.debounce.250ms="loadCountries" list="country-list" class="field rch-field-pad" placeholder="Country">
+        </div>
+        <datalist id="country-list">
+          <template x-for="item in countrySuggestions" :key="item.value">
+            <option :value="item.value" x-text="item.label"></option>
+          </template>
+        </datalist>
+      </div>
 
-  <button @click="startSearch" class="btn-primary" :disabled="!country || !region || !first_name || !gender || loading">Treffer pruefen</button>
+      <div class="rch-input-group">
+        <label class="rch-input-label">Province</label>
+        <div class="rch-field-with-icon">
+          <span class="rch-field-icon">⌄</span>
+          <input x-model="region" @input.debounce.250ms="loadRegions" list="region-list" class="field rch-field-pad" :disabled="!country" placeholder="Province">
+        </div>
+        <datalist id="region-list">
+          <template x-for="item in regionSuggestions" :key="item.value">
+            <option :value="item.value" x-text="item.label"></option>
+          </template>
+        </datalist>
+      </div>
 
-  <div class="text-sm text-slate-700" x-text="message"></div>
+      <div class="rch-input-group rch-input-group-name">
+        <label class="rch-input-label">Vorname</label>
+        <div class="rch-field-with-icon">
+          <span class="rch-field-icon">◉</span>
+          <input x-model="first_name" class="field field-lg rch-field-pad" :disabled="!region" placeholder="Texteingabefeld">
+        </div>
+      </div>
+
+      <div class="rch-input-group">
+        <label class="rch-input-label">Gender</label>
+        <div class="rch-field-with-icon">
+          <span class="rch-field-icon">⌄</span>
+          <select x-model="gender" class="field rch-field-pad" :disabled="!first_name">
+            <option value="">Gender</option>
+            <option value="female">Female</option>
+            <option value="male">Male</option>
+            <option value="diverse">Diverse</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="rch-find-wrap">
+        <button @click="startSearch" class="btn-primary rch-find-btn" :disabled="!country || !region || !first_name || !gender || loading">Find</button>
+      </div>
+    </div>
+    <p class="text-sm text-slate-600 mt-4" x-text="message"></p>
+  </section>
 
   <template x-if="candidateCount !== null">
-    <div class="panel p-4">
-      <p class="text-sm">Trefferanzahl: <strong x-text="candidateCount"></strong></p>
+    <section class="rch-step-card">
+      <div class="rch-step-tag">Schritt 2</div>
+      <div class="rch-candidate-chip" x-text="resultHeadline()"></div>
+
+      <div class="mt-4 flex items-center gap-2 text-sm text-slate-700">
+        <span>Treffer:</span>
+        <strong x-text="candidateCount"></strong>
+      </div>
+
       <template x-if="candidateCount > 0">
         <div class="mt-4">
-          <p class="text-sm text-slate-600">Waehle deinen zweiten Schritt:</p>
-          <div class="grid sm:grid-cols-2 gap-2 mt-3">
+          <p class="text-sm text-slate-600">Bitte einen Fall auswaehlen:</p>
+          <div class="rch-case-stack mt-3">
             <template x-for="item in cases" :key="item.key">
-              <button class="btn-secondary text-left" @click="chooseCase(item.key)">
-                <span class="font-medium" x-text="item.label"></span>
+              <button class="rch-case-btn" @click="chooseCase(item.key)">
+                <span class="rch-case-title" x-text="item.label"></span>
               </button>
             </template>
           </div>
         </div>
       </template>
+
       <template x-if="candidateCount === 0">
-        <p class="mt-3 text-sm text-slate-600">Kein Treffer. Du kannst ein neues Profil anlegen (Create-Flow folgt in API-Ausbau).</p>
+        <p class="mt-4 text-sm text-slate-600">Kein Treffer. Du kannst ein neues Profil anlegen.</p>
       </template>
-    </div>
+    </section>
   </template>
 
   <template x-if="selectedCase">
-    <div class="panel p-4 space-y-4">
-      <div class="flex items-center justify-between">
-        <h4 class="font-semibold">Schritt <span x-text="currentStepNumber"></span>: <span x-text="currentFieldLabel()"></span></h4>
-        <div class="text-sm text-slate-600">Timeout: <span class="font-semibold" x-text="stepTimer"></span>s</div>
+    <section class="rch-step-card">
+      <div class="rch-step-tag">Schritt <span x-text="currentStepNumber"></span></div>
+      <div class="flex items-center justify-between gap-4 flex-wrap">
+        <h4 class="font-semibold"><span x-text="selectedCaseLabel()"></span> · <span x-text="currentFieldLabel()"></span></h4>
+        <div class="text-sm text-slate-600">Timer: <strong x-text="stepTimer"></strong>s</div>
+      </div>
+      <div class="rch-timer-track mt-3">
+        <div class="rch-timer-fill" :style="`width: ${timerPercent()}%`"></div>
       </div>
 
-      <template x-if="currentField === 'birth_date'">
-        <input x-model="stepValue" type="date" class="field">
-      </template>
+      <div class="mt-4">
+        <template x-if="currentField === 'birth_date'">
+          <input x-model="stepValue" type="date" class="field">
+        </template>
 
-      <template x-if="currentField === 'email'">
-        <input x-model="stepValue" type="email" class="field" placeholder="person@example.com">
-      </template>
+        <template x-if="currentField === 'email'">
+          <input x-model="stepValue" type="email" class="field" placeholder="person@example.com">
+        </template>
 
-      <template x-if="currentField === 'phone'">
-        <input x-model="stepValue" type="tel" class="field" placeholder="+491761234567">
-      </template>
+        <template x-if="currentField === 'phone'">
+          <input x-model="stepValue" type="tel" class="field" placeholder="+491761234567">
+        </template>
 
-      <template x-if="currentField === 'age'">
-        <input x-model="stepValue" type="number" min="18" max="120" class="field" placeholder="36">
-      </template>
+        <template x-if="currentField === 'age'">
+          <input x-model="stepValue" type="number" min="18" max="120" class="field" placeholder="36">
+        </template>
 
-      <template x-if="currentField === 'social_url'">
-        <input x-model="stepValue" type="url" class="field" placeholder="https://bumble.com/...">
-      </template>
+        <template x-if="currentField === 'social_url'">
+          <input x-model="stepValue" type="url" class="field" placeholder="https://bumble.com/...">
+        </template>
 
-      <template x-if="currentField === 'last_name'">
-        <input x-model="stepValue" type="text" class="field" placeholder="Nachname">
-      </template>
+        <template x-if="currentField === 'last_name'">
+          <input x-model="stepValue" type="text" class="field" placeholder="Nachname">
+        </template>
 
-      <template x-if="currentField === 'hair_color'">
-        <select x-model="stepValue" class="field">
-          <option value="">Bitte waehlen</option>
-          <template x-for="hc in hairColors" :key="hc.value">
-            <option :value="hc.value" x-text="hc.label"></option>
-          </template>
-        </select>
-      </template>
-
-      <template x-if="currentField === 'city'">
-        <div>
-          <input x-model="stepValue" @input.debounce.250ms="loadCities" list="city-list" class="field" placeholder="Stadt">
-          <datalist id="city-list">
-            <template x-for="item in citySuggestions" :key="item.value + item.place_id">
-              <option :value="item.value" x-text="item.label"></option>
+        <template x-if="currentField === 'hair_color'">
+          <select x-model="stepValue" class="field">
+            <option value="">Bitte waehlen</option>
+            <template x-for="hc in hairColors" :key="hc.value">
+              <option :value="hc.value" x-text="hc.label"></option>
             </template>
-          </datalist>
-        </div>
-      </template>
+          </select>
+        </template>
 
-      <button @click="submitStep" class="btn-primary" :disabled="loading || !stepValue">Weiter</button>
-      <p class="text-sm text-slate-600" x-text="stepMessage"></p>
-    </div>
+        <template x-if="currentField === 'city'">
+          <div>
+            <input x-model="stepValue" @input.debounce.250ms="loadCities" list="city-list" class="field" placeholder="Stadt">
+            <datalist id="city-list">
+              <template x-for="item in citySuggestions" :key="item.value + item.place_id">
+                <option :value="item.value" x-text="item.label"></option>
+              </template>
+            </datalist>
+          </div>
+        </template>
+      </div>
+
+      <div class="mt-4 flex items-center gap-3 flex-wrap">
+        <button @click="submitStep" class="btn-primary" :disabled="loading || !stepValue">Weiter</button>
+        <p class="text-sm text-slate-600" x-text="stepMessage"></p>
+      </div>
+    </section>
   </template>
 
   <template x-if="profile">
-    <div class="panel p-6 space-y-4">
+    <section class="rch-step-card space-y-4">
       <h3 class="text-xl font-semibold">Profil gefunden</h3>
       <p><strong x-text="profile.first_name"></strong> <span x-text="profile.masked_last_name"></span></p>
       <p class="text-sm text-slate-600">Alter: <span x-text="profile.age"></span> · Geschlecht: <span x-text="profile.gender"></span> · Haarfarbe: <span x-text="profile.hair_color"></span></p>
@@ -157,10 +195,10 @@
         <label class="flex items-center gap-2 mt-3 text-sm"><input type="checkbox" x-model="anonymousVote"> Anonym voten</label>
         <button @click="submitVote" class="btn-primary mt-3" :disabled="selectedAttributes.length === 0 || selectedAttributes.length > 3">Vote absenden</button>
       </div>
-    </div>
+    </section>
   </template>
 
-  <div class="panel p-4" x-data="creditBuy()">
+  <section id="billing" class="panel p-4" x-data="creditBuy()">
     <h4 class="font-semibold">Credits aufladen</h4>
     <p class="text-sm text-slate-600">1 Credit = 1 EUR (konfigurierbar).</p>
     <div class="mt-3 inline-flex items-center gap-2">
@@ -170,7 +208,7 @@
       <button class="btn-primary" @click="buy">Kaufen</button>
     </div>
     <p class="text-xs text-slate-500 mt-2" x-text="msg"></p>
-  </div>
+  </section>
 </div>
 
 <script>
@@ -190,6 +228,7 @@ function searchFlow(config) {
     stepValue: '',
     currentStepNumber: 2,
     stepMessage: '',
+    stepTimeout: config.stepTimeout,
     stepTimer: config.stepTimeout,
     timerHandle: null,
     profile: null,
@@ -211,9 +250,41 @@ function searchFlow(config) {
     init() {
       this.loadCountries();
     },
+    csrfToken() {
+      const inputToken = document.querySelector('[name=csrfmiddlewaretoken]');
+      if (inputToken && inputToken.value) return inputToken.value;
+      const match = document.cookie.match(/(?:^|; )csrftoken=([^;]+)/);
+      return match ? decodeURIComponent(match[1]) : '';
+    },
+    requestHeaders(extra = {}) {
+      const headers = { 'X-Requested-With': 'XMLHttpRequest', ...extra };
+      const csrf = this.csrfToken();
+      if (csrf) headers['X-CSRFToken'] = csrf;
+      const gate = localStorage.getItem('rch_js_gate_token');
+      if (gate) headers['X-JS-Gate'] = gate;
+      return headers;
+    },
+    timerPercent() {
+      if (!this.stepTimeout || this.stepTimeout <= 0) return 0;
+      return Math.max(0, Math.min(100, Math.round((this.stepTimer / this.stepTimeout) * 100)));
+    },
+    genderLabel() {
+      if (this.gender === 'female') return 'Female';
+      if (this.gender === 'male') return 'Male';
+      if (this.gender === 'diverse') return 'Diverse';
+      return 'Unknown';
+    },
+    resultHeadline() {
+      const name = this.first_name || 'Unknown';
+      return `${name}, ${this.genderLabel()}`;
+    },
+    selectedCaseLabel() {
+      const selected = this.caseByKey();
+      return selected ? selected.label : 'Fall';
+    },
     resetTimer() {
       clearInterval(this.timerHandle);
-      this.stepTimer = config.stepTimeout;
+      this.stepTimer = this.stepTimeout;
       this.timerHandle = setInterval(() => {
         this.stepTimer -= 1;
         if (this.stepTimer <= 0) {
@@ -224,30 +295,36 @@ function searchFlow(config) {
       }, 1000);
     },
     async loadCountries() {
-      const res = await fetch(`/api/search/countries?q=${encodeURIComponent(this.country || '')}`);
+      const res = await this.apiFetch(`/api/search/countries?q=${encodeURIComponent(this.country || '')}`);
       const data = await res.json();
       this.countrySuggestions = data.suggestions || [];
     },
     async loadRegions() {
       if (!this.country) return;
-      const res = await fetch(`/api/search/regions?country=${encodeURIComponent(this.country)}&q=${encodeURIComponent(this.region || '')}`);
+      const res = await this.apiFetch(`/api/search/regions?country=${encodeURIComponent(this.country)}&q=${encodeURIComponent(this.region || '')}`);
       const data = await res.json();
       this.regionSuggestions = data.suggestions || [];
     },
     async loadCities() {
       if (!this.country || !this.region || !this.stepValue || this.stepValue.length < 2) return;
       const params = new URLSearchParams({ q: this.stepValue, country: this.country, region: this.region });
-      const res = await fetch(`/api/search/cities?${params.toString()}`);
+      const res = await this.apiFetch(`/api/search/cities?${params.toString()}`);
       const data = await res.json();
       this.citySuggestions = data.suggestions || [];
+    },
+    async apiFetch(url, options = {}) {
+      const headers = this.requestHeaders(options.headers || {});
+      return fetch(url, { ...options, headers });
     },
     async startSearch() {
       this.loading = true;
       this.message = '';
       this.profile = null;
-      const res = await fetch('/api/search/start', {
+      this.selectedCase = '';
+      this.candidateCount = null;
+      const res = await this.apiFetch('/api/search/start', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           country: this.country,
           region: this.region,
@@ -298,9 +375,9 @@ function searchFlow(config) {
         case_type: this.selectedCase,
       };
       payload[this.currentField] = this.stepValue;
-      const res = await fetch(`/api/search/step/${this.currentStepNumber}`, {
+      const res = await this.apiFetch(`/api/search/step/${this.currentStepNumber}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
       const data = await res.json();
@@ -325,7 +402,7 @@ function searchFlow(config) {
       this.resetTimer();
     },
     async loadProfile() {
-      const res = await fetch(`/api/search/session/${this.sessionToken}/profile`);
+      const res = await this.apiFetch(`/api/search/session/${this.sessionToken}/profile`);
       const data = await res.json();
       if (!data.ok) {
         this.stepMessage = data.error || 'Profil konnte nicht geladen werden';
@@ -336,7 +413,7 @@ function searchFlow(config) {
     },
     async refreshVotes() {
       if (!this.profile) return;
-      const res = await fetch(`/api/candidates/${this.profile.id}/votes`);
+      const res = await this.apiFetch(`/api/candidates/${this.profile.id}/votes`);
       const data = await res.json();
       if (data.ok) {
         this.profile.vote_breakdown = data.votes;
@@ -348,9 +425,9 @@ function searchFlow(config) {
         this.stepMessage = 'Maximal 3 Kategorien erlaubt.';
         return;
       }
-      const res = await fetch(`/api/candidates/${this.profile.id}/vote`, {
+      const res = await this.apiFetch(`/api/candidates/${this.profile.id}/vote`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           attribute_codes: this.selectedAttributes,
           anonymous: this.anonymousVote,
@@ -375,10 +452,18 @@ function creditBuy() {
     msg: '',
     inc() { if (this.qty < 100) this.qty += 1; },
     dec() { if (this.qty > 1) this.qty -= 1; },
+    requestHeaders(extra = {}) {
+      const headers = { 'X-Requested-With': 'XMLHttpRequest', ...extra };
+      const match = document.cookie.match(/(?:^|; )csrftoken=([^;]+)/);
+      if (match) headers['X-CSRFToken'] = decodeURIComponent(match[1]);
+      const gate = localStorage.getItem('rch_js_gate_token');
+      if (gate) headers['X-JS-Gate'] = gate;
+      return headers;
+    },
     async buy() {
       const res = await fetch('/api/credits/checkout', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        headers: this.requestHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ quantity: this.qty }),
       });
       const data = await res.json();
