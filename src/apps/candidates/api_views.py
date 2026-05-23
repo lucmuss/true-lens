@@ -38,6 +38,21 @@ def country_autocomplete(request):
 
 
 @require_GET
+@login_required
+def first_name_autocomplete(request):
+    q = (request.GET.get("q") or "").strip()
+    if len(q) < 2:
+        return JsonResponse({"suggestions": []})
+    names = (
+        Candidate.objects.filter(first_name__istartswith=q)
+        .values_list("first_name", flat=True)
+        .distinct()
+        .order_by("first_name")[:10]
+    )
+    return JsonResponse({"suggestions": list(names)})
+
+
+@require_GET
 def region_autocomplete(request):
     country = (request.GET.get("country") or "").strip()
     q = (request.GET.get("q") or "").strip().lower()

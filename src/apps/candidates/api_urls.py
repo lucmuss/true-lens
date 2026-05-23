@@ -4,6 +4,7 @@ from . import api_views
 
 urlpatterns = [
     path("search/countries", api_views.country_autocomplete, name="api_country_autocomplete"),
+    path("search/first-names", api_views.first_name_autocomplete, name="api_first_name_autocomplete"),
     path("search/regions", api_views.region_autocomplete, name="api_region_autocomplete"),
     path("search/cities", api_views.city_autocomplete, name="api_city_autocomplete"),
     path("search/start", api_views.search_start, name="api_search_start"),

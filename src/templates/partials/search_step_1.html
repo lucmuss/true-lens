@@ -11,10 +11,29 @@
       </div>
       <button class="btn-secondary" @click="resetSearch">Neue Suche</button>
     </div>
-    <div class="tl-stepper-row mt-4">
-      <span :class="stepPillClass(1)">1. Basisdaten</span>
-      <span :class="stepPillClass(2)">2. Verifizierungsfall</span>
-      <span :class="stepPillClass(3)">3. Profil & Vote</span>
+
+    <!-- Stepper — numbered process indicator -->
+    <div class="flex items-center gap-2 mt-4 flex-wrap">
+
+      <div class="flex items-center gap-2">
+        <span :class="currentUiStep() === 1 ? 'tl-step-num tl-step-num--active' : (currentUiStep() > 1 ? 'tl-step-num tl-step-num--done' : 'tl-step-num')">1</span>
+        <span :class="currentUiStep() === 1 ? 'tl-step-label--active' : (currentUiStep() > 1 ? 'tl-step-label--done' : 'tl-step-label--idle')" class="text-sm font-semibold hidden sm:inline">Basisdaten</span>
+      </div>
+
+      <span class="tl-step-arrow">›</span>
+
+      <div class="flex items-center gap-2">
+        <span :class="currentUiStep() === 2 ? 'tl-step-num tl-step-num--active' : (currentUiStep() > 2 ? 'tl-step-num tl-step-num--done' : 'tl-step-num tl-step-num--idle')">2</span>
+        <span :class="currentUiStep() === 2 ? 'tl-step-label--active' : (currentUiStep() > 2 ? 'tl-step-label--done' : 'tl-step-label--idle')" class="text-sm font-semibold hidden sm:inline">Verifizierungsfall</span>
+      </div>
+
+      <span class="tl-step-arrow">›</span>
+
+      <div class="flex items-center gap-2">
+        <span :class="currentUiStep() === 3 ? 'tl-step-num tl-step-num--active' : 'tl-step-num tl-step-num--idle'">3</span>
+        <span :class="currentUiStep() === 3 ? 'tl-step-label--active' : 'tl-step-label--idle'" class="text-sm font-semibold hidden sm:inline">Profil &amp; Vote</span>
+      </div>
+
     </div>
   </section>
 
@@ -23,34 +42,102 @@
       <h3 class="ow-card-title">Schritt 1: Basisdaten</h3>
     </div>
     <div class="mt-4 space-y-4">
+
+      <!-- Land + Provinz (2-column) -->
       <div class="grid sm:grid-cols-2 gap-4">
+
+        <!-- Land — custom dropdown -->
         <div class="tl-input-group">
           <label class="tl-input-label">Land</label>
-          <input x-model="country" @input.debounce.250ms="loadCountries" list="country-list" class="field" placeholder="z.B. Germany">
-          <datalist id="country-list">
-            <template x-for="item in countrySuggestions" :key="item.value">
-              <option :value="item.value" x-text="item.label"></option>
-            </template>
-          </datalist>
+          <div class="relative">
+            <input
+              x-model="country"
+              @input.debounce.250ms="loadCountries"
+              @focus="if(countrySuggestions.length) showCountrySuggestions=true"
+              @keydown.escape="showCountrySuggestions=false"
+              @keydown.tab="showCountrySuggestions=false"
+              class="field"
+              placeholder="z.B. Germany"
+              autocomplete="off"
+            >
+            <ul x-show="showCountrySuggestions && countrySuggestions.length"
+                @click.outside="showCountrySuggestions=false"
+                class="tl-suggest-list"
+                x-transition:enter="transition ease-out duration-100"
+                x-transition:enter-start="opacity-0 -translate-y-1"
+                x-transition:enter-end="opacity-100 translate-y-0">
+              <template x-for="item in countrySuggestions" :key="item.value">
+                <li class="tl-suggest-item"
+                    @click="country=item.value; showCountrySuggestions=false; loadRegions()">
+                  <span class="font-bold" x-text="item.label"></span>
+                </li>
+              </template>
+            </ul>
+          </div>
         </div>
 
+        <!-- Provinz — custom dropdown -->
         <div class="tl-input-group">
           <label class="tl-input-label">Provinz / Bundesland</label>
-          <input x-model="region" @input.debounce.250ms="loadRegions" list="region-list" class="field" :disabled="!country" placeholder="z.B. Bayern">
-          <datalist id="region-list">
-            <template x-for="item in regionSuggestions" :key="item.value">
-              <option :value="item.value" x-text="item.label"></option>
-            </template>
-          </datalist>
+          <div class="relative">
+            <input
+              x-model="region"
+              @input.debounce.250ms="loadRegions"
+              @focus="if(regionSuggestions.length) showRegionSuggestions=true"
+              @keydown.escape="showRegionSuggestions=false"
+              @keydown.tab="showRegionSuggestions=false"
+              class="field"
+              :disabled="!country"
+              placeholder="z.B. Bayern"
+              autocomplete="off"
+            >
+            <ul x-show="showRegionSuggestions && regionSuggestions.length"
+                @click.outside="showRegionSuggestions=false"
+                class="tl-suggest-list">
+              <template x-for="item in regionSuggestions" :key="item.value">
+                <li class="tl-suggest-item"
+                    @click="region=item.value; showRegionSuggestions=false">
+                  <span class="font-bold" x-text="item.label"></span>
+                </li>
+              </template>
+            </ul>
+          </div>
         </div>
+
       </div>
 
+      <!-- Vorname + Geschlecht (2-column) -->
       <div class="grid sm:grid-cols-2 gap-4">
+
+        <!-- Vorname — autocomplete aus DB -->
         <div class="tl-input-group">
           <label class="tl-input-label">Vorname</label>
-          <input x-model="first_name" class="field" :disabled="!region" placeholder="z.B. Clara">
+          <div class="relative">
+            <input
+              x-model="first_name"
+              @input.debounce.300ms="loadFirstNames"
+              @focus="if(firstNameSuggestions.length) showFirstNameSuggestions=true"
+              @keydown.escape="showFirstNameSuggestions=false"
+              @keydown.tab="showFirstNameSuggestions=false"
+              class="field"
+              :disabled="!region"
+              placeholder="z.B. Clara"
+              autocomplete="off"
+            >
+            <ul x-show="showFirstNameSuggestions && firstNameSuggestions.length"
+                @click.outside="showFirstNameSuggestions=false"
+                class="tl-suggest-list">
+              <template x-for="name in firstNameSuggestions" :key="name">
+                <li class="tl-suggest-item"
+                    @click="first_name=name; showFirstNameSuggestions=false">
+                  <span class="font-bold" x-text="name"></span>
+                </li>
+              </template>
+            </ul>
+          </div>
         </div>
 
+        <!-- Geschlecht -->
         <div class="tl-input-group">
           <label class="tl-input-label">Geschlecht</label>
           <select x-model="gender" class="field" :disabled="!first_name">
@@ -58,6 +145,7 @@
             <option value="male">Männlich</option>
           </select>
         </div>
+
       </div>
 
       <div class="pt-2">
@@ -253,4 +341,3 @@
     </section>
   </template>
 </div>
-

@@ -432,31 +432,79 @@ body {
   border-radius: var(--radius-lg);
 }
 
-.tl-stepper-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+/* ── Process stepper ── */
+.tl-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: var(--card-border);
+  color: var(--text-3);
+  border: 2px solid transparent;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  flex-shrink: 0;
 }
 
-.ow-step-pill {
-  border: 1px solid var(--card-border);
-  border-radius: 999px;
-  padding: 4px 10px;
-  font-size: 0.76rem;
-  color: var(--text-2);
-  background: var(--card-bg);
+.tl-step-num--idle {
+  background: #f1f5f9;
+  color: #94a3b8;
 }
 
-.ow-step-pill.active {
-  border-color: rgba(59, 130, 246, 0.25);
-  background: var(--accent-light);
+.tl-step-num--active {
+  background: #1d4ed8;
+  color: #fff;
+  border-color: #bfdbfe;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+}
+
+.tl-step-num--done {
+  background: #059669;
+  color: #fff;
+  border-color: #a7f3d0;
+}
+
+.tl-step-label--idle   { color: #94a3b8; }
+.tl-step-label--active { color: #1d4ed8; }
+.tl-step-label--done   { color: #059669; }
+
+.tl-step-arrow {
+  color: #cbd5e1;
+  font-size: 1.1rem;
+  font-weight: 300;
+  user-select: none;
+}
+
+/* ── Autocomplete suggestion dropdown ── */
+.tl-suggest-list {
+  position: absolute;
+  z-index: 50;
+  left: 0;
+  right: 0;
+  top: calc(100% + 4px);
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.10);
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.tl-suggest-item {
+  padding: 8px 14px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  color: #1e293b;
+  transition: background 0.1s;
+}
+
+.tl-suggest-item:hover {
+  background: #eff6ff;
   color: #1d4ed8;
-}
-
-.ow-step-pill.done {
-  border-color: var(--success-border);
-  background: var(--success-bg);
-  color: var(--success-text);
 }
 
 .tl-search-grid {

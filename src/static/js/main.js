@@ -127,6 +127,10 @@ function searchFlow(config) {
     countrySuggestions: [],
     regionSuggestions: [],
     citySuggestions: [],
+    firstNameSuggestions: [],
+    showCountrySuggestions: false,
+    showRegionSuggestions: false,
+    showFirstNameSuggestions: false,
     showCreateForm: false,
     createMessage: "",
     newProfile: { last_name: "", birth_date: "", hair_color: "", city: "", email: "", phone: "" },
@@ -211,6 +215,10 @@ function searchFlow(config) {
       this.selectedAttributes = [];
       this.anonymousVote = false;
       this.citySuggestions = [];
+      this.firstNameSuggestions = [];
+      this.showCountrySuggestions = false;
+      this.showRegionSuggestions = false;
+      this.showFirstNameSuggestions = false;
       this.showCreateForm = false;
       this.createMessage = "";
       this.newProfile = { last_name: "", birth_date: "", hair_color: "", city: "", email: "", phone: "" };
@@ -266,8 +274,21 @@ function searchFlow(config) {
         const res = await this.apiFetch("/api/search/countries?q=" + encodeURIComponent(this.country || ""));
         const data = await res.json();
         this.countrySuggestions = data.suggestions || [];
+        this.showCountrySuggestions = this.countrySuggestions.length > 0;
       } catch (e) {
         this.countrySuggestions = [];
+      }
+    },
+    async loadFirstNames() {
+      const q = (this.first_name || "").trim();
+      if (q.length < 2) { this.firstNameSuggestions = []; this.showFirstNameSuggestions = false; return; }
+      try {
+        const res = await this.apiFetch("/api/search/first-names?q=" + encodeURIComponent(q));
+        const data = await res.json();
+        this.firstNameSuggestions = data.suggestions || [];
+        this.showFirstNameSuggestions = this.firstNameSuggestions.length > 0;
+      } catch (e) {
+        this.firstNameSuggestions = [];
       }
     },
     async loadRegions() {
@@ -278,6 +299,7 @@ function searchFlow(config) {
         );
         const data = await res.json();
         this.regionSuggestions = data.suggestions || [];
+        this.showRegionSuggestions = this.regionSuggestions.length > 0;
       } catch (e) {
         this.regionSuggestions = [];
       }
