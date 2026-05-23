@@ -36,15 +36,31 @@ def _make_captcha_code(length: int = 5) -> str:
     return "".join(secrets.choice(_CAPTCHA_CHARS) for _ in range(length))
 
 
+_CAPTCHA_BG = (248, 250, 252)  # slate-50
+_CAPTCHA_FG_COLORS = [
+    (29, 78, 216, 255),    # blue-700
+    (37, 99, 235, 255),    # blue-600
+    (30, 64, 175, 255),    # blue-800
+    (124, 58, 237, 255),   # violet-600 (matches "Konto erstellen" button)
+    (15, 23, 42, 255),     # slate-900
+]
+
+
 def create_captcha_challenge() -> dict[str, str]:
-    """Generate an image captcha, store PNG bytes in DB, return a URL instead of base64."""
+    """Generate an image captcha in brand colors, store PNG bytes in DB, return a URL."""
+    import io
+
     from captcha.image import ImageCaptcha
 
     code = _make_captcha_code()
     salt = secrets.token_hex(8)
 
     image_gen = ImageCaptcha(width=240, height=80, font_sizes=(36, 40, 44))
-    image_bytes = image_gen.generate(code).read()
+    fg = secrets.choice(_CAPTCHA_FG_COLORS)
+    img = image_gen.generate_image(code, bg_color=_CAPTCHA_BG, fg_color=fg)
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    image_bytes = buf.getvalue()
 
     challenge = CaptchaChallenge.objects.create(
         code_digest=_digest(code, salt),

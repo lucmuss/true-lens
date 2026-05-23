@@ -20,6 +20,7 @@ class ApiGateMiddleware:
         "/api/security/captcha/start",
         "/api/security/captcha/verify",
         "/api/security/captcha/image/",
+        "/api/security/gate/check",
         "/api/credits/webhook/stripe",
     )
 

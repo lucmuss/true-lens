@@ -25,6 +25,20 @@ function captchaFlow() {
     verifying: false,
     loadError: "",
     async init() {
+      const savedToken = localStorage.getItem("tl_js_gate_token");
+      if (savedToken) {
+        try {
+          const res = await fetch("/api/security/gate/check", {
+            headers: { "X-JS-Gate": savedToken, "X-Requested-With": "XMLHttpRequest" },
+          });
+          const data = await res.json();
+          if (data.valid) {
+            this.verified = true;
+            this.gateToken = savedToken;
+            return;
+          }
+        } catch (_) { /* fall through to captcha */ }
+      }
       await this.loadCaptcha();
     },
     async loadCaptcha() {

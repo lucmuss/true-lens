@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
 from .models import CaptchaChallenge
-from .services import create_captcha_challenge, create_js_gate_token, extract_client_ip, verify_captcha_challenge
+from .services import create_captcha_challenge, create_js_gate_token, extract_client_ip, validate_js_gate_token, verify_captcha_challenge
 
 
 def _load_body(request) -> dict:
@@ -18,6 +18,16 @@ def _load_body(request) -> dict:
         return json.loads(request.body.decode("utf-8"))
     except json.JSONDecodeError:
         return {}
+
+
+@require_GET
+def gate_check(request):
+    """Validate a gate token sent in the X-JS-Gate header. No gate token needed to reach this."""
+    token = request.headers.get("X-JS-Gate", "")
+    ip = extract_client_ip(request)
+    ua = request.META.get("HTTP_USER_AGENT", "")
+    valid = bool(token) and validate_js_gate_token(token=token, ip=ip, user_agent=ua)
+    return JsonResponse({"ok": True, "valid": valid})
 
 
 @csrf_exempt

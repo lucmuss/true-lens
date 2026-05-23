@@ -1,9 +1,9 @@
-"""Custom allauth login/signup views that require a solved captcha gate token."""
+"""Custom allauth login/signup/password-reset views that require a solved captcha gate token."""
 from __future__ import annotations
 
 from allauth.account.views import LoginView as AllauthLoginView
+from allauth.account.views import PasswordResetView as AllauthPasswordResetView
 from allauth.account.views import SignupView as AllauthSignupView
-from django.db.models import Count, Sum
 
 from apps.candidates.models import Candidate, CandidateAttributeVote
 from apps.security.services import extract_client_ip, validate_js_gate_token
@@ -49,3 +49,10 @@ class SignupWithCaptchaView(AllauthSignupView):
             form.add_error(None, "Bitte löse zuerst das Sicherheits-Captcha.")
             return self.form_invalid(form)
         return super().form_valid(form)
+
+
+class PasswordResetWithStatsView(AllauthPasswordResetView):
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx.update(_stats())
+        return ctx
