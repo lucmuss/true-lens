@@ -27,4 +27,9 @@ type:
 test:
 	uv run pytest -q
 
+css:
+	@echo "@import \"tailwindcss\";" > /tmp/_tw_input.css
+	npx @tailwindcss/cli -i /tmp/_tw_input.css -o src/static/css/tailwind.css --content "src/templates/**/*.html"
+	@rm /tmp/_tw_input.css
+
 check: lint type test

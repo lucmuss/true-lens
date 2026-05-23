@@ -14,8 +14,8 @@
     <nav class="ow-sidebar-nav">
       <div class="ow-sidebar-section active">Arbeitsbereich</div>
       <a href="{% url 'dashboard' %}" class="ow-nav-item active">Suche</a>
-      <a href="#vote-history" class="ow-nav-item">Abstimmungen</a>
-      <a href="#quick-billing" class="ow-nav-item">Abrechnung</a>
+      <a href="{% url 'vote_history' %}" class="ow-nav-item">Abstimmungen</a>
+      <a href="{% url 'billing' %}" class="ow-nav-item">Abrechnung</a>
       <a href="{% url 'recruiter_settings' %}" class="ow-nav-item">Einstellungen</a>
       {% if user.is_staff %}
       <div class="ow-sidebar-section mt-4">Administration</div>

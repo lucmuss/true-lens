@@ -43,7 +43,8 @@ def captcha_image(request, captcha_id: str):
 def captcha_verify(request):
     payload = _load_body(request)
     captcha_id = (payload.get("captcha_id") or "").strip()
-    code = (payload.get("code") or "").strip()
+    raw_code = (payload.get("code") or "").strip().upper()
+    code = raw_code
     if not captcha_id or not code:
         return JsonResponse({"ok": False, "error": "captcha_id and code are required"}, status=400)
 

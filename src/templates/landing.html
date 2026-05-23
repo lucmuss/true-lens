@@ -59,16 +59,38 @@
         </div>
 
         <!-- Stats -->
-        <div class="flex gap-6">
-          <div class="bg-white rounded-xl px-5 py-4 shadow-sm border border-slate-100 text-center min-w-[110px]">
+        <div class="flex flex-wrap gap-4">
+          <div class="bg-white rounded-xl px-5 py-4 shadow-sm border border-slate-100 text-center min-w-[100px]">
             <div class="text-2xl font-bold text-blue-600">{{ candidate_count }}</div>
             <div class="text-xs text-slate-500 mt-0.5 font-medium">Profile</div>
           </div>
-          <div class="bg-white rounded-xl px-5 py-4 shadow-sm border border-slate-100 text-center min-w-[110px]">
-            <div class="text-2xl font-bold text-blue-600">{{ profile_views }}</div>
-            <div class="text-xs text-slate-500 mt-0.5 font-medium">Aufrufe</div>
+          <div class="bg-white rounded-xl px-5 py-4 shadow-sm border border-slate-100 text-center min-w-[100px]">
+            <div class="text-2xl font-bold text-blue-600">{{ recruiter_count }}</div>
+            <div class="text-xs text-slate-500 mt-0.5 font-medium">Recruiter</div>
+          </div>
+          <div class="bg-white rounded-xl px-5 py-4 shadow-sm border border-slate-100 text-center min-w-[100px]">
+            <div class="text-2xl font-bold text-blue-600">{{ total_votes }}</div>
+            <div class="text-xs text-slate-500 mt-0.5 font-medium">Bewertungen</div>
           </div>
         </div>
+
+        <!-- CTA Buttons -->
+        {% if not user.is_authenticated %}
+        <div class="flex flex-wrap gap-3">
+          <a href="{% url 'account_login' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors text-sm shadow-sm">
+            Anmelden
+          </a>
+          <a href="{% url 'account_signup' %}" class="inline-flex items-center gap-2 px-6 py-3 text-white font-semibold rounded-xl transition-colors text-sm shadow-sm" style="background:#7c3aed">
+            Konto erstellen &rarr;
+          </a>
+        </div>
+        {% else %}
+        <div>
+          <a href="{% url 'dashboard' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors text-sm shadow-sm">
+            Zur Suche &rarr;
+          </a>
+        </div>
+        {% endif %}
 
         <!-- Benefits grid — equal-height cards via CSS grid -->
         <div class="grid sm:grid-cols-3 gap-4 items-stretch">
@@ -148,15 +170,18 @@
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                   </svg>
-                  <span class="text-sm">Captcha wird geladen…</span>
+                  <span class="text-sm">Aufgabe wird geladen…</span>
                 </div>
               </template>
 
               <!-- Captcha image -->
               <template x-if="captchaImage">
                 <div class="mb-4">
-                  <p class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Captcha</p>
-                  <img :src="captchaImage" alt="Captcha" class="w-full rounded-lg border border-slate-200 bg-slate-50">
+                  <p class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-3">Sicherheitscode eingeben</p>
+                  <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between gap-3">
+                    <img :src="captchaImage" alt="Captcha" class="rounded h-16 select-none" style="image-rendering:pixelated">
+                    <button @click="loadCaptcha()" type="button" class="text-slate-400 hover:text-blue-600 text-lg" title="Neues Bild">↺</button>
+                  </div>
                 </div>
               </template>
 
@@ -164,7 +189,7 @@
               <template x-if="loadError">
                 <div class="rounded-lg bg-red-50 border border-red-100 p-4 mb-4">
                   <p class="text-sm text-red-700 mb-3" x-text="loadError"></p>
-                  <button @click="loadCaptcha()" class="text-sm font-medium text-blue-600 hover:underline">↺ Captcha neu laden</button>
+                  <button @click="loadCaptcha()" class="text-sm font-medium text-blue-600 hover:underline">↺ Neu laden</button>
                 </div>
               </template>
 
@@ -174,19 +199,20 @@
                   <input
                     x-model="code"
                     type="text"
-                    class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent tracking-widest font-mono uppercase"
-                    placeholder="CODE EINGEBEN"
-                    maxlength="6"
+                    inputmode="text"
+                    autocapitalize="characters"
+                    class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-lg font-semibold tracking-widest uppercase"
+                    placeholder="Code eingeben"
                     @keydown.enter="verify()"
                     autocomplete="off"
-                    spellcheck="false"
+                    maxlength="6"
                   >
                   <button
                     @click="verify()"
                     class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors text-sm disabled:opacity-50"
-                    :disabled="!code.trim() || verifying"
+                    :disabled="!code.toString().trim() || verifying"
                   >
-                    <span x-text="verifying ? 'Wird geprüft…' : 'Prüfung starten'"></span>
+                    <span x-text="verifying ? 'Wird geprüft…' : 'Code prüfen'"></span>
                   </button>
                 </div>
               </template>
@@ -242,69 +268,4 @@
   </footer>
 </div>
 
-<script>
-  function captchaFlow() {
-    return {
-      captchaId: "",
-      captchaImage: "",
-      code: "",
-      message: "",
-      verified: false,
-      captchaLoading: false,
-      verifying: false,
-      loadError: "",
-      async init() {
-        await this.loadCaptcha();
-      },
-      async loadCaptcha() {
-        this.captchaLoading = true;
-        this.captchaImage = "";
-        this.loadError = "";
-        this.code = "";
-        this.message = "";
-        try {
-          const res = await fetch('/api/security/captcha/start', {
-            method: 'POST',
-            headers: { 'X-Requested-With': 'XMLHttpRequest' },
-          });
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const data = await res.json();
-          if (!data.ok) { this.loadError = data.error || 'Captcha konnte nicht geladen werden.'; return; }
-          this.captchaId = data.captcha_id;
-          this.captchaImage = '/api/security/captcha/image/' + data.captcha_id;
-        } catch (e) {
-          this.loadError = 'Captcha konnte nicht geladen werden. Bitte erneut versuchen.';
-        } finally {
-          this.captchaLoading = false;
-        }
-      },
-      async verify() {
-        if (!this.code.trim() || this.verifying) return;
-        this.verifying = true;
-        this.message = '';
-        try {
-          const res = await fetch('/api/security/captcha/verify', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-            body: JSON.stringify({ captcha_id: this.captchaId, code: this.code }),
-          });
-          const data = await res.json();
-          if (data.ok) {
-            this.verified = true;
-            if (data.js_gate_token) {
-              localStorage.setItem('tl_js_gate_token', data.js_gate_token);
-            }
-          } else {
-            this.message = data.error || 'Prüfung fehlgeschlagen.';
-            await this.loadCaptcha();
-          }
-        } catch (e) {
-          this.message = 'Verbindungsfehler. Bitte Seite neu laden.';
-        } finally {
-          this.verifying = false;
-        }
-      },
-    };
-  }
-</script>
 {% endblock %}

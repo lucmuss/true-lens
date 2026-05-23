@@ -10,7 +10,7 @@ from django.views.decorators.http import require_GET, require_POST
 from apps.security.services import extract_client_ip
 
 from .google_places import GooglePlacesError, autocomplete_cities
-from .location_data import COUNTRIES, COUNTRY_TO_ISO2, REGIONS_BY_COUNTRY
+from .location_data import COUNTRY_TO_ISO2, REGIONS_BY_COUNTRY, country_suggestions
 from .models import Candidate, LookupSession
 from .services import (
     advance_lookup_session,
@@ -33,11 +33,8 @@ def _body(request) -> dict:
 
 @require_GET
 def country_autocomplete(request):
-    q = (request.GET.get("q") or "").strip().lower()
-    if not q:
-        return JsonResponse({"suggestions": [{"label": c, "value": c} for c in COUNTRIES[:20]]})
-    results = [c for c in COUNTRIES if q in c.lower()][:20]
-    return JsonResponse({"suggestions": [{"label": c, "value": c} for c in results]})
+    q = (request.GET.get("q") or "").strip()
+    return JsonResponse({"suggestions": country_suggestions(q, limit=8)})
 
 
 @require_GET

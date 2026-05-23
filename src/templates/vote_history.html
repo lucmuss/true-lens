@@ -7,18 +7,19 @@
       <div class="ow-sidebar-logo-icon"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M10 2.5L7.5 7.5h5L10 2.5z" fill="rgba(255,255,255,0.62)"/><path d="M10 2.5L7.5 7.5h5L10 2.5z" fill="rgba(255,255,255,0.52)" transform="rotate(60 10 10)"/><path d="M10 2.5L7.5 7.5h5L10 2.5z" fill="rgba(255,255,255,0.46)" transform="rotate(120 10 10)"/><path d="M10 2.5L7.5 7.5h5L10 2.5z" fill="rgba(255,255,255,0.38)" transform="rotate(180 10 10)"/><path d="M10 2.5L7.5 7.5h5L10 2.5z" fill="rgba(255,255,255,0.38)" transform="rotate(240 10 10)"/><path d="M10 2.5L7.5 7.5h5L10 2.5z" fill="rgba(255,255,255,0.38)" transform="rotate(300 10 10)"/><path d="M7 10.5l2 2 4-4.5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <div>
         <div class="ow-sidebar-logo-text">TrueLens</div>
-        <div class="ow-sidebar-logo-sub">Secure Lookup</div>
+        <div class="ow-sidebar-logo-sub">Sichere Suche</div>
       </div>
     </div>
     <nav class="ow-sidebar-nav">
-      <div class="ow-sidebar-section">Workspace</div>
-      <a href="{% url 'dashboard' %}" class="ow-nav-item">Search</a>
-      <a href="{% url 'vote_history' %}" class="ow-nav-item active">Votes</a>
-      <a href="{% url 'recruiter_settings' %}" class="ow-nav-item">Settings</a>
+      <div class="ow-sidebar-section">Arbeitsbereich</div>
+      <a href="{% url 'dashboard' %}" class="ow-nav-item">Suche</a>
+      <a href="{% url 'vote_history' %}" class="ow-nav-item active">Abstimmungen</a>
+      <a href="{% url 'billing' %}" class="ow-nav-item">Abrechnung</a>
+      <a href="{% url 'recruiter_settings' %}" class="ow-nav-item">Einstellungen</a>
       <div class="ow-nav-settings-sep"></div>
       <form method="post" action="{% url 'account_logout' %}" style="margin:0">
         {% csrf_token %}
-        <button type="submit" class="ow-nav-item">Logout</button>
+        <button type="submit" class="ow-nav-item">Abmelden</button>
       </form>
     </nav>
     <div class="ow-sidebar-user">
@@ -31,7 +32,7 @@
     <header class="ow-header">
       <div>
         <div class="ow-header-title">Vote-Historie</div>
-        <div class="ow-header-sub">Alle deine Kategoriebewertungen im Ueberblick</div>
+        <div class="ow-header-sub">Alle deine Kategoriebewertungen im Überblick</div>
       </div>
       <div class="ow-header-actions">
         <a href="{% url 'dashboard' %}" class="btn-secondary">Zum Dashboard</a>
@@ -41,6 +42,7 @@
     <div class="ow-content">
       <div class="panel p-5">
         {% if page_obj %}
+        <div class="ow-table-wrap">
         <table class="w-full text-sm">
           <thead>
             <tr class="border-b text-left text-slate-500">
@@ -71,6 +73,7 @@
             {% endfor %}
           </tbody>
         </table>
+        </div>
 
         <div class="flex items-center justify-between mt-5 gap-3 flex-wrap">
           <p class="text-sm text-slate-500">{{ page_obj.paginator.count }} Votes gesamt</p>
@@ -80,7 +83,7 @@
             {% endif %}
             <span class="text-sm text-slate-500 flex items-center">Seite {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
             {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}" class="btn-secondary text-sm">Naechste</a>
+            <a href="?page={{ page_obj.next_page_number }}" class="btn-secondary text-sm">Nächste</a>
             {% endif %}
           </div>
         </div>

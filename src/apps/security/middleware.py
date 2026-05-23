@@ -30,10 +30,9 @@ class ApiGateMiddleware:
         path = request.path
         ip = getattr(request, "client_ip", "127.0.0.1")
 
-        if is_ip_banned(ip):
-            return JsonResponse({"ok": False, "error": "IP temporarily banned"}, status=403)
-
         if path.startswith("/api/") and not path.startswith(self.ALLOWED_PATH_PREFIXES):
+            if is_ip_banned(ip):
+                return JsonResponse({"ok": False, "error": "IP temporarily banned"}, status=403)
             # Authenticated users are already verified by Django session — skip gate check.
             user = getattr(request, "user", None)
             if not (user and user.is_authenticated):
@@ -44,8 +43,11 @@ class ApiGateMiddleware:
 
         response = self.get_response(request)
         response["Content-Security-Policy"] = (
-            "default-src 'self'; script-src 'self' https://unpkg.com https://cdn.tailwindcss.com; "
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.tailwindcss.com; "
-            "font-src 'self' https://fonts.gstatic.com; img-src 'self'; connect-src 'self';"
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-eval'; "
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+            "font-src 'self' https://fonts.gstatic.com; "
+            "img-src 'self' data:; "
+            "connect-src 'self';"
         )
         return response

@@ -60,14 +60,32 @@ def admin_dashboard(request):
 
 
 def landing(request):
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
     candidate_count = Candidate.objects.count()
-    profile_views = Candidate.objects.aggregate(total=Count("view_logs")).get("total", 0)
+    recruiter_count = User.objects.filter(is_active=True, is_verified_recruiter=True).count()
+    total_votes = CandidateAttributeVote.objects.count()
     return render(
         request,
         "landing.html",
         {
             "candidate_count": candidate_count,
-            "profile_views": profile_views,
+            "recruiter_count": recruiter_count,
+            "total_votes": total_votes,
+        },
+    )
+
+
+@login_required
+def billing(request):
+    purchases = CreditPurchase.objects.filter(recruiter=request.user).order_by("-created_at")[:20]
+    ledger = CreditLedgerEntry.objects.filter(recruiter=request.user).order_by("-created_at")[:50]
+    return render(
+        request,
+        "billing.html",
+        {
+            "purchases": purchases,
+            "ledger": ledger,
         },
     )
 

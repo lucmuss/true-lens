@@ -6,26 +6,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}{{ PROJECT_NAME }}{% endblock %}</title>
   <meta name="color-scheme" content="light">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
-  <script defer src="https://unpkg.com/alpinejs@3.14.8/dist/cdn.min.js"></script>
+  <link rel="stylesheet" href="{% static 'css/tailwind.css' %}">
   <link rel="stylesheet" href="{% static 'css/app.css' %}">
-  <style>[x-cloak]{display:none!important}</style>
+  <script src="{% static 'js/htmx.min.js' %}"></script>
+  <script src="{% static 'js/main.js' %}"></script>
+  <script defer src="{% static 'js/alpine.min.js' %}"></script>
   <noscript>
-    <style>
-      body { display: none !important; }
-    </style>
+    <style>body { display: none !important; }</style>
   </noscript>
 </head>
 <body class="app-bg text-slate-900">
   {% block body %}{% endblock %}
-  <script>
-    document.body.addEventListener("htmx:configRequest", function (event) {
-      const token = document.querySelector("[name=csrfmiddlewaretoken]");
-      if (token) event.detail.headers["X-CSRFToken"] = token.value;
-      const gate = localStorage.getItem("tl_js_gate_token");
-      if (gate) event.detail.headers["X-JS-Gate"] = gate;
-    });
-  </script>
 </body>
 </html>

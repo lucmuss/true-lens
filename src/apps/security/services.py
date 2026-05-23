@@ -3,10 +3,10 @@ from __future__ import annotations
 import hashlib
 import hmac
 import logging
+import random
 import secrets
 from datetime import timedelta
 
-from captcha.image import ImageCaptcha
 from django.conf import settings
 from django.core import signing
 from django.db.models import F
@@ -26,24 +26,41 @@ def extract_client_ip(request: HttpRequest) -> str:
 
 
 def _digest(code: str, salt: str) -> str:
-    return hashlib.sha256(f"{salt}:{code.lower().strip()}".encode()).hexdigest()
+    return hashlib.sha256(f"{salt}:{code.upper().strip()}".encode()).hexdigest()
+
+
+_CAPTCHA_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+
+
+def _make_captcha_code(length: int = 5) -> str:
+    return "".join(secrets.choice(_CAPTCHA_CHARS) for _ in range(length))
 
 
 def create_captcha_challenge() -> dict[str, str]:
-    code = "".join(secrets.choice("ABCDEFGHJKLMNPQRSTUVWXYZ23456789") for _ in range(6))
+    """Generate an image captcha challenge using the lepture/captcha library."""
+    import base64
+    import io
+
+    from captcha.image import ImageCaptcha
+
+    code = _make_captcha_code()
     salt = secrets.token_hex(8)
 
-    image = ImageCaptcha(width=240, height=70)
-    png_bytes = image.generate(code).getvalue()
+    image_gen = ImageCaptcha(width=240, height=80, font_sizes=(36, 40, 44))
+    image_data = image_gen.generate(code)
+    image_b64 = base64.b64encode(image_data.read()).decode("ascii")
 
     challenge = CaptchaChallenge.objects.create(
         code_digest=_digest(code, salt),
         salt=salt,
-        image_data=png_bytes,
-        expires_at=timezone.now() + timedelta(minutes=5),
+        expires_at=timezone.now() + timedelta(minutes=10),
     )
 
-    return {"captcha_id": challenge.captcha_id.hex}
+    return {
+        "captcha_id": challenge.captcha_id.hex,
+        "image_b64": image_b64,
+        "question": "Gib den abgebildeten Code ein:",
+    }
 
 
 def verify_captcha_challenge(*, captcha_id: str, answer: str, ip: str, user=None) -> bool:

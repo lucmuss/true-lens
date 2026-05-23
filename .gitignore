@@ -12,3 +12,7 @@ htmlcov/
 staticfiles/
 media/
 output/ui-review/
+
+# Node.js (Tailwind CSS build tooling)
+node_modules/
+package-lock.json

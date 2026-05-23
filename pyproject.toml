@@ -1,6 +1,6 @@
 [project]
 name = "true-lens"
-version = "0.1.2"
+version = "0.2.0"
 description = "TrueLens — clarity through verified profile lookup"
 readme = "README.md"
 requires-python = ">=3.12"

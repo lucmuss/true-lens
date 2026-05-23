@@ -1,0 +1,12 @@
+{% extends "admin/base.html" %}
+{% block extrahead %}{{ block.super }}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  html, body, #header, #content, #footer, #nav-global, .dashboard, .module,
+  input, select, textarea, button, th, td, label, a {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+  }
+</style>
+{% endblock %}

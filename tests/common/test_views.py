@@ -15,7 +15,8 @@ def test_landing_is_public(client, candidate_factory):
 
     assert response.status_code == 200
     assert "candidate_count" in response.context
-    assert "profile_views" in response.context
+    assert "recruiter_count" in response.context
+    assert "total_votes" in response.context
 
 
 @pytest.mark.django_db
