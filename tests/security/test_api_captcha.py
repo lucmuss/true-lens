@@ -15,9 +15,9 @@ def test_captcha_start_returns_challenge(client):
     data = response.json()
     assert data["ok"] is True
     assert "captcha_id" in data
-    assert "image_b64" in data
+    assert "image_url" in data
     assert "question" in data
-    assert data["image_b64"]  # non-empty base64 image
+    assert data["image_url"]  # non-empty URL path
 
 
 @pytest.mark.django_db

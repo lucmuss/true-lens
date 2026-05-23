@@ -17,7 +17,7 @@ def test_captcha_start_no_csrf():
     data = response.json()
     assert data["ok"] is True
     assert "captcha_id" in data
-    assert "image_b64" in data
+    assert "image_url" in data
     assert "question" in data
 
 

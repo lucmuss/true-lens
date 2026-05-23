@@ -25,9 +25,9 @@ def test_create_captcha_challenge_persists_row():
 
     data = create_captcha_challenge()
     assert "captcha_id" in data
-    assert "image_b64" in data
+    assert "image_url" in data
     assert "question" in data
-    assert data["image_b64"]  # non-empty base64 image
+    assert data["image_url"]  # non-empty URL string
 
     challenge = CaptchaChallenge.objects.get(captcha_id=data["captcha_id"])
     assert challenge.code_digest  # answer hash stored
@@ -107,7 +107,7 @@ def test_inline_captcha_session_flow(captcha_challenge_factory, monkeypatch):
     challenge = captcha_challenge_factory(code="HELLO1")
     monkeypatch.setattr(
         "apps.security.services.create_captcha_challenge",
-        lambda: {"captcha_id": challenge.captcha_id.hex, "image_b64": "abc", "question": "Code eingeben:"},
+        lambda: {"captcha_id": challenge.captcha_id.hex, "image_url": "abc", "question": "Code eingeben:"},
     )
 
     data = create_captcha_inline(request)

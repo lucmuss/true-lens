@@ -78,10 +78,10 @@
           </div>
         </template>
 
-        <template x-if="captchaImage">
+        <template x-if="captchaUrl">
           <div>
             <div class="flex items-center justify-between gap-3 mb-3">
-              <img :src="captchaImage" alt="Captcha" class="rounded h-14 select-none border border-slate-200">
+              <img :src="captchaUrl" alt="Captcha" class="rounded h-14 select-none border border-slate-200">
               <button @click="loadCaptcha()" type="button" class="text-slate-400 hover:text-blue-600 text-lg shrink-0" title="Neues Bild">↺</button>
             </div>
             <div class="flex gap-2">

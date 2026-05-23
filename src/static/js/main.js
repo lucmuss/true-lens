@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", function () {
 function captchaFlow() {
   return {
     captchaId: "",
-    captchaImage: "",
+    captchaUrl: "",
     code: "",
     message: "",
     verified: false,
@@ -29,7 +29,7 @@ function captchaFlow() {
     },
     async loadCaptcha() {
       this.captchaLoading = true;
-      this.captchaImage = "";
+      this.captchaUrl = "";
       this.loadError = "";
       this.code = "";
       this.message = "";
@@ -45,7 +45,7 @@ function captchaFlow() {
           return;
         }
         this.captchaId = data.captcha_id;
-        this.captchaImage = "data:image/png;base64," + data.image_b64;
+        this.captchaUrl = data.image_url;
       } catch (e) {
         this.loadError = "Captcha konnte nicht geladen werden. Bitte erneut versuchen.";
       } finally {

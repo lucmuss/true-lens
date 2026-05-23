@@ -175,11 +175,11 @@
               </template>
 
               <!-- Captcha image -->
-              <template x-if="captchaImage">
+              <template x-if="captchaUrl">
                 <div class="mb-4">
                   <p class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-3">Sicherheitscode eingeben</p>
                   <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between gap-3">
-                    <img :src="captchaImage" alt="Captcha" class="rounded h-16 select-none" style="image-rendering:pixelated">
+                    <img :src="captchaUrl" alt="Captcha" class="rounded h-16 select-none" style="image-rendering:pixelated">
                     <button @click="loadCaptcha()" type="button" class="text-slate-400 hover:text-blue-600 text-lg" title="Neues Bild">↺</button>
                   </div>
                 </div>
@@ -194,7 +194,7 @@
               </template>
 
               <!-- Input + submit -->
-              <template x-if="captchaImage">
+              <template x-if="captchaUrl">
                 <div class="space-y-3">
                   <input
                     x-model="code"

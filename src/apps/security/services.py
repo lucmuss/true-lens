@@ -37,28 +37,25 @@ def _make_captcha_code(length: int = 5) -> str:
 
 
 def create_captcha_challenge() -> dict[str, str]:
-    """Generate an image captcha challenge using the lepture/captcha library."""
-    import base64
-    import io
-
+    """Generate an image captcha, store PNG bytes in DB, return a URL instead of base64."""
     from captcha.image import ImageCaptcha
 
     code = _make_captcha_code()
     salt = secrets.token_hex(8)
 
     image_gen = ImageCaptcha(width=240, height=80, font_sizes=(36, 40, 44))
-    image_data = image_gen.generate(code)
-    image_b64 = base64.b64encode(image_data.read()).decode("ascii")
+    image_bytes = image_gen.generate(code).read()
 
     challenge = CaptchaChallenge.objects.create(
         code_digest=_digest(code, salt),
         salt=salt,
+        image_data=image_bytes,
         expires_at=timezone.now() + timedelta(minutes=10),
     )
 
     return {
         "captcha_id": challenge.captcha_id.hex,
-        "image_b64": image_b64,
+        "image_url": f"/api/security/captcha/image/{challenge.captcha_id.hex}",
         "question": "Gib den abgebildeten Code ein:",
     }
 
